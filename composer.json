@@ -1,0 +1,33 @@
+{
+  "name": "phper666/mongodb",
+  "authors": [
+    {
+      "name": "liyuzhao",
+      "email": "562405704@qq.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=7.2",
+    "psr/container": "^1.0",
+    "hyperf/pool": "^1.1",
+    "hyperf/contract": "~1.1.0",
+    "hyperf/utils": "~1.1.0",
+    "mongodb/mongodb": "^1.5"
+  },
+  "require-dev": {
+    "hyperf/di": "~1.1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Phper666\\Mongodb\\": "src/"
+    },
+    "files": [
+    ]
+  },
+  "extra": {
+    "hyperf": {
+      "config": "Phper666\\Mongodb\\ConfigProvider"
+    }
+  }
+}
