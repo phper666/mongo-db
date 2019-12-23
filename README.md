@@ -148,8 +148,8 @@ class TestController
 
 调用test方法时，就能查出co1表中的一条数据了，是不是很简单！
 ```
-6、支持有多种方法，详细你可以到Phper666\MongoDb\MongoDb查看，获取你可以去看官方的php-mongodb文档，https://docs.mongodb.com/php-library/v1.5/reference/method/MongoDBCollection-createIndexes/
+6、支持有多种方法，详细你可以到Phper666\MongoDb\MongoDb查看，或者你可以去看官方的php-mongodb文档，https://docs.mongodb.com/php-library/v1.5/reference/method/MongoDBCollection-createIndexes/
 #### 8、结束
 如果你有使用的问题或者建议，欢迎你提一个isset，由于太匆忙，等我开发完现在的项目，我会重新优化和迭代这个包，如果开发中有遇到问题或者有更好的写法，我会迭代到这个包这里。
 #### 9、注意
-mongodb如果你使用的是默认生成_id,更新和删除我默认已经帮你使用MongoDB\BSON\ObjectId进行了转换，所以你无需再转换。获取数据时，我也默认帮你把_id转成了字符串
+如果你使用的是mongodb默认生成_id,那么更新和删除我默认已经帮你使用MongoDB\BSON\ObjectId进行了转换，所以你无需再转换，你直接把_id对应的字符串传进去就好了，比如要根据_id获取某条数据，$filter=['_id' => 'xxxxxx']即可。获取数据时，我也默认帮你把_id转成了字符串
