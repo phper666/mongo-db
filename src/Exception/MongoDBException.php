@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace Phper666\Mongodb\Exception;
+namespace Phper666\MongoDb\Exception;
 
 class MongoDBException extends \Exception
 {

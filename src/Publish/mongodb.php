@@ -7,10 +7,13 @@ return [
         'host' => env('MONGODB_HOST', '127.0.0.1'),
         'port' => env('MONGODB_PORT', 27017),
         'db' => env('MONGODB_DB', 'test'),
-        'authMechanism' => 'SCRAM-SHA-256',
+        'authMechanism' => env('MONGODB_AUTH_MECHANISM', 'SCRAM-SHA-256'),
         'driver_options' => [],
+        'migration' => [
+            'path' => BASE_PATH . '/migrations/mongodb', // 迁移文件的路径
+        ],
         //设置复制集,没有不设置
-        'replica' => 'rs0',
+//        'replica' => 'rs0',
         'pool' => [
             'min_connections' => 1,
             'max_connections' => 100,

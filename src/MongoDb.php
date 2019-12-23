@@ -1,16 +1,17 @@
 <?php
 declare(strict_types=1);
-namespace Phper666\Mongodb;
-
+namespace Phper666\MongoDb;
 
 use Hyperf\Task\Annotation\Task;
-use Phper666\Mongodb\Exception\MongoDBException;
-use Phper666\Mongodb\Pool\PoolFactory;
+use MongoDB\BSON\JavascriptInterface;
+use MongoDB\Operation\Explainable;
+use Phper666\MongoDb\Exception\MongoDBException;
+use Phper666\MongoDb\Pool\PoolFactory;
 use Hyperf\Utils\Context;
+use Phper666\MongoDb\Utils\Arr;
 
 /**
  * Class MongoDb
- * @package Phper666\Mongodb
  */
 class MongoDb
 {
@@ -29,11 +30,17 @@ class MongoDb
     const UPDATED_AT = 'updated_at';
 
     /**
+     * mongodb表
+     * @var string
+     */
+    public $collectionName = null;
+
+    /**
      * 是否自动更新时间
      *
      * @var bool
      */
-    protected $timestamps = true;
+    public $timestamps = true;
 
     /**
      * @var PoolFactory
@@ -45,28 +52,42 @@ class MongoDb
      */
     protected $poolName = 'default';
 
+    /**
+     * MongoDb constructor.
+     * @param PoolFactory $factory
+     * @throws MongoDBException
+     */
     public function __construct(PoolFactory $factory)
     {
+        if (!$this->collectionName) throw new MongoDBException('Please set the collectionName');
         $this->factory = $factory;
+    }
+
+    /**
+     * @param bool $bool
+     */
+    public function setTimestamps(bool $bool)
+    {
+        $this->timestamps = $bool;
     }
 
     /**
      * 返回满足条件的第一个数据
      *
-     * @param string $namespace
-     * @param array  $filter
+     * @Task(timeout=30)
+     * @param        $filter
      * @param array  $options
      * @return array
      * @throws MongoDBException
      */
-    public function fetchOne(string $namespace, array $filter = [], array $options = []): array
+    public function findOne($filter = [], array $options = [], array $collectionOptions = []): array
     {
         try {
             /**
              * @var $collection MongoDBConnection
              */
             $collection = $this->getConnection();
-            return $collection->executeQueryAll($namespace, $filter, $options);
+            return $collection->findOne($this->collectionName, $filter, $options, $collectionOptions);
         } catch (\Exception $e) {
             throw new MongoDBException($this->handleErrorMsg($e));
         }
@@ -75,21 +96,47 @@ class MongoDb
     /**
      * 返回满足filer的全部数据
      *
-     * @param string $namespace
-     * @param array $filter
-     * @param array $options
+     * @Task(timeout=30)
+     * @param array  $filter
+     * @param array  $options
+     * @param array  $collectionOptions
      * @return array
      * @throws MongoDBException
      */
-    public function fetchAll(string $namespace, array $filter = [], array $options = []): array
+    public function findAll(array $filter = [], array $options = [], array $collectionOptions = [])
     {
         try {
             /**
              * @var $collection MongoDBConnection
              */
             $collection = $this->getConnection();
-            return $collection->executeQueryAll($namespace, $filter, $options);
+            return $collection->findAll($this->collectionName, $filter, $options, $collectionOptions);
         } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * 返回满足filer的分页数据
+     *
+     * @Task(timeout=30)
+     * @param int    $currentPage
+     * @param int    $limit
+     * @param array  $filter
+     * @param array  $options
+     * @param array  $collectionOptions
+     * @return array
+     * @throws MongoDBException
+     */
+    public function findPagination(int $currentPage, int $limit,  array $filter = [], array $options = [], array $collectionOptions = [])
+    {
+        try {
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            return $collection->findPagination($this->collectionName, $currentPage, $limit,  $filter, $options, $collectionOptions);
+        } catch (\Exception  $e) {
             throw new MongoDBException($this->handleErrorMsg($e));
         }
     }
@@ -97,13 +144,13 @@ class MongoDb
     /**
      * 使用command的方式查询出数据
      *
-     * @param string $namespace
+     * @Task(timeout=30)
      * @param array  $command
      * @return array
      * @throws MongoDBException
      * @throws \MongoDB\Driver\Exception\Exception
      */
-    public function fetchByCommand(array $command = []): array
+    public function findByCommand(array $command = []): array
     {
         try {
             /**
@@ -117,70 +164,117 @@ class MongoDb
     }
 
     /**
-     * 返回满足filer的分页数据
+     * 查找单个文档并删除它，返回原始文档
      *
-     * @param string $namespace
-     * @param int $limit
-     * @param int $currentPage
-     * @param array $filter
-     * @param array $options
-     * @return array
+     * @Task(timeout=30)
+     * @param        $filter
+     * @param array  $options
+     * @param array  $collectionOptions
+     * @return array|object|null
      * @throws MongoDBException
      */
-    public function fetchPagination(string $namespace, int $currentPage, int $limit,  array $filter = [], array $options = []): array
+    public function findOneAndDelete($filter, array $options = [], array $collectionOptions = []): array
     {
         try {
             /**
              * @var $collection MongoDBConnection
              */
             $collection = $this->getConnection();
-            return $collection->execQueryPagination($namespace, $currentPage, $limit,  $filter, $options);
-        } catch (\Exception  $e) {
+            return $collection->findOneAndDelete($this->collectionName, $filter, $options, $collectionOptions);
+        } catch (\Exception $e) {
             throw new MongoDBException($this->handleErrorMsg($e));
         }
     }
 
     /**
-     * 批量插入
+     * 查找单个文档并替换它，返回原始文档或替换文件
      *
-     * @param string $namespace
-     * @param array $data
-     * @return bool|string
+     * @Task(timeout=30)
+     * @param        $filter
+     * @param        $replacement
+     * @param array  $options
+     * @param array  $collectionOptions
+     * @return array|object|null
      * @throws MongoDBException
      */
-    public function insertAll(string $namespace, array $data)
+    public function findOneAndReplace($filter, $replacement, array $options = [], array $collectionOptions = [])
     {
-        if (count($data) == count($data, 1)) {
-            throw new  MongoDBException('data is can only be a two-dimensional array');
+        try {
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            return $collection->findOneAndReplace($this->collectionName, $filter, $replacement, $options, $collectionOptions);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
         }
+    }
 
+    /**
+     * 查找单个文档并更新它，返回原始文档或更新后的文件
+     *
+     * @Task(timeout=30)
+     * @param        $filter
+     * @param        $update
+     * @param array  $options
+     * @param array  $collectionOptions
+     * @return array|object|null
+     * @throws MongoDBException
+     */
+    public function findOneAndUpdate($filter, $update, array $options = [], array $collectionOptions = [])
+    {
+        try {
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            return $collection->findOneAndUpdate($this->collectionName, $filter, $update, $options, $collectionOptions);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * 插入多个数据
+     *
+     * @Task(timeout=30)
+     * @param array  $documents
+     * @param array  $options
+     * @param array  $collectionOptions
+     * @return array|mixed[]
+     * @throws MongoDBException
+     */
+    public function insertMany(array $documents = [], array $options = [], array $collectionOptions = [])
+    {
         try {
             if ($this->timestamps) {
                 $time = time();
-                foreach ($data as $k => &$v) {
-                    $v[self::CREATED_AT] = $time;
-                    $v[self::UPDATED_AT] = $time;
+                foreach ($documents as $k => &$document) {
+                    $document[self::CREATED_AT] = $time;
+                    $document[self::UPDATED_AT] = $time;
                 }
             }
             /**
              * @var $collection MongoDBConnection
              */
             $collection = $this->getConnection();
-            return $collection->insertAll($namespace, $data);
-        } catch (MongoDBException $e) {
+            return $collection->insertMany($this->collectionName, $documents, $options, $collectionOptions);
+        } catch (\Exception $e) {
             throw new MongoDBException($this->handleErrorMsg($e));
         }
     }
 
     /**
-     * 数据插入数据库
+     * 插入一个数据
      *
-     * @param $namespace
-     * @param array $data
-     * @return bool|mixed
+     * @Task(timeout=30)
+     * @param array  $documents
+     * @param array  $options
+     * @param array  $collectionOptions
+     * @return mixed|string
      * @throws MongoDBException
      */
-    public function insert($namespace, array $data = [])
+    public function insertOne($documents = [], array $options = [], array $collectionOptions = [])
     {
         try {
             if ($this->timestamps) {
@@ -192,7 +286,61 @@ class MongoDb
              * @var $collection MongoDBConnection
              */
             $collection = $this->getConnection();
-            return $collection->insert($namespace, $data);
+            return $collection->insertOne($this->collectionName, $documents, $options, $collectionOptions);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * 更新匹配的到的所有数据
+     *
+     * @Task(timeout=30)
+     * @param        $filter
+     * @param        $update
+     * @param array  $options
+     * @param array  $collectionOptions
+     * @return int|null|bool
+     * @throws MongoDBException
+     */
+    public function updateMany($filter, $update, array $options = [], array $collectionOptions = [])
+    {
+        try {
+            if ($this->timestamps) {
+                $update[self::UPDATED_AT] = time();
+            }
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            return $collection->updateMany($this->collectionName, $filter, $update, $options, $collectionOptions);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * 更新匹配的到的一条数据
+     *
+     * @Task(timeout=30)
+     * @param        $filter
+     * @param        $update
+     * @param array  $options
+     * @param array  $collectionOptions
+     * @return int|null|bool
+     * @throws MongoDBException
+     */
+    public function updateOne($filter, $update, array $options = [], array $collectionOptions = [])
+    {
+        try {
+            if ($this->timestamps) {
+                $update[self::UPDATED_AT] = time();
+            }
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            return $collection->updateOne($this->collectionName, $filter, $update, $options, $collectionOptions);
         } catch (\Exception $e) {
             throw new MongoDBException($this->handleErrorMsg($e));
         }
@@ -201,14 +349,14 @@ class MongoDb
     /**
      * 更新数据满足$filter的行的信息成$newObject
      *
-     * @param       $namespace
+     * @Task(timeout=30)
      * @param array $filter
      * @param array $newObj
      * @param array $options
-     * @return bool
+     * @return bool|int
      * @throws MongoDBException
      */
-    public function updateRow($namespace, array $filter = [], array $newObj = [], array $options = ['multi' => false, 'upsert' => false]): bool
+    public function updateRow(array $filter = [], array $update = [], array $options = ['multi' => false, 'upsert' => false]): ?bool
     {
         try {
             if ($this->timestamps) {
@@ -218,31 +366,53 @@ class MongoDb
              * @var $collection MongoDBConnection
              */
             $collection = $this->getConnection();
-            return $collection->updateRow($namespace, $filter, $newObj, $options);
+            return $collection->updateRow($this->collectionName, $filter, $update, $options);
         } catch (\Exception $e) {
             throw new MongoDBException($this->handleErrorMsg($e));
         }
     }
 
     /**
-     * 删除满足条件的数据，默认只删除匹配条件的第一条记录，如果要删除多条$limit=true
+     * 删除匹配到的多条数据
      *
-     * @param string $namespace
-     * @param array  $filter
-     * @param bool   $limit
+     * @Task(timeout=30)
+     * @param        $filter
      * @param array  $options
-     * @return bool
+     * @param array  $collectionOptions
+     * @return int|bool
      * @throws MongoDBException
      */
-    public function delete(string $namespace, array $filter = [], bool $limit = false, array $options = []): bool
+    public function deleteMany($filter, array $options = [], array $collectionOptions = [])
     {
         try {
-            $options['limit'] = $limit;
             /**
              * @var $collection MongoDBConnection
              */
             $collection = $this->getConnection();
-            return $collection->delete($namespace, $filter, $options);
+            return $collection->deleteMany($this->collectionName, $filter, $options, $collectionOptions);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * 删除一条匹配的数据
+     *
+     * @Task(timeout=30)
+     * @param        $filter
+     * @param array  $options
+     * @param array  $collectionOptions
+     * @return int|bool
+     * @throws MongoDBException
+     */
+    public function deleteOne($filter, array $options = [], array $collectionOptions = [])
+    {
+        try {
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            return $collection->deleteOne($this->collectionName, $filter, $options, $collectionOptions);
         } catch (\Exception $e) {
             throw new MongoDBException($this->handleErrorMsg($e));
         }
@@ -251,41 +421,388 @@ class MongoDb
     /**
      * 通过多个_id删除数据
      *
-     * @param string $namespace
      * @param array  $ids
      * @param array  $options
-     * @return bool
+     * @return int|bool
      * @throws MongoDBException
      */
-    public function deleteByIds(string $namespace, array $ids = [], array $options = []): bool
+    public function deleteByIds(array $ids = [], array $options = []): bool
     {
         try {
             /**
              * @var $collection MongoDBConnection
              */
             $collection = $this->getConnection();
-            return $collection->deleteByIds($namespace, $ids, $options);
+            return $collection->deleteByIds($this->collectionName, $ids, $options);
         } catch (\Exception $e) {
             throw new MongoDBException($this->handleErrorMsg($e));
         }
     }
 
     /**
-     * 返回collection中满足条件的数量
+     * 查找集合中指定字段的不同值
      *
-     * @param string $namespace
-     * @param array $filter
-     * @return bool
+     * @Task(timeout=30)
+     * @param string $fieldName
+     * @param array  $filter
+     * @param array  $options
+     * @param array  $collectionOptions
+     * @return array|mixed[]
      * @throws MongoDBException
      */
-    public function count(string $namespace, array $filter = [])
+    public function distinct(string $fieldName, $filter = [], array $options = [], array $collectionOptions = [])
     {
         try {
             /**
              * @var $collection MongoDBConnection
              */
             $collection = $this->getConnection();
-            return $collection->count($namespace, $filter);
+            return $collection->distinct($this->collectionName, $fieldName, $filter, $options, $collectionOptions);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * 聚合查询
+     *
+     * @Task(timeout=30)
+     * @param array  $filter
+     * @param array  $options
+     * @return array
+     * @throws MongoDBException
+     */
+    public function aggregate(array $pipeline = [], array $options = [], array $collectionOptions = [])
+    {
+        try {
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            return $collection->aggregate($this->collectionName, $pipeline, $options, $collectionOptions);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * 获取查询满足的的数量
+     *
+     * @Task(timeout=30)
+     * @param        $filter
+     * @param array  $options
+     * @param array  $collectionOptions
+     * @return int
+     * @throws MongoDBException
+     */
+    public function countDocuments($filter = [], array $options = [], array $collectionOptions = [])
+    {
+        try {
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            return $collection->countDocuments($this->collectionName, $filter, $options, $collectionOptions);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * 使用集合元数据获取集合中文档的估计数量
+     *
+     * @Task(timeout=30)
+     * @param array  $options
+     * @param array  $collectionOptions
+     * @return int
+     * @throws MongoDBException
+     */
+    public function estimatedDocumentCount(array $options = [], array $collectionOptions = [])
+    {
+        try {
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            return $collection->estimatedDocumentCount($this->collectionName, $options, $collectionOptions);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * 创建索引
+     *
+     * @Task(timeout=30)
+     * @param        $key
+     * @param array  $options
+     * @param array  $collectionOptions
+     * @return mixed
+     * @throws MongoDBException
+     */
+    public function createIndex($key, array $options = [], array $collectionOptions = [])
+    {
+        try {
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            return $collection->createIndex($this->collectionName, $key, $options, $collectionOptions);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * 批量创建索引
+     *
+     * @Task(timeout=30)
+     * @param array  $indexes
+     * @param array  $options
+     * @param array  $collectionOptions
+     * @return string[]
+     * @throws MongoDBException
+     */
+    public function createIndexes(array $indexes, array $options = [], array $collectionOptions = [])
+    {
+        try {
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            return $collection->createIndexes($this->collectionName, $indexes, $options, $collectionOptions);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * 获取所有索引信息 TODO
+     *
+     * @Task(timeout=30)
+     * @param array  $options
+     * @param array  $collectionOptions
+     * @return array
+     * @throws MongoDBException
+     */
+    public function listIndexes(array $options = [], array $collectionOptions = [])
+    {
+        try {
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            return $collection->listIndexes($this->collectionName, $options, $collectionOptions);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * 移除索引
+     *
+     * @Task(timeout=30)
+     * @param        $indexName
+     * @param array  $options
+     * @param array  $collectionOptions
+     * @return array|object
+     * @throws MongoDBException
+     */
+    public function dropIndex($indexName, array $options = [], array $collectionOptions = [])
+    {
+        try {
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            return $collection->dropIndex($this->collectionName, $indexName, $options, $collectionOptions);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * 移除集合中所有的索引
+     *
+     * @Task(timeout=30)
+     * @param array  $options
+     * @param array  $collectionOptions
+     * @return array|object
+     * @throws MongoDBException
+     */
+    public function dropIndexes(array $options = [], array $collectionOptions = [])
+    {
+        try {
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            return $collection->dropIndexes($this->collectionName, $options, $collectionOptions);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * Executes a map-reduce aggregation on the collection.
+     *
+     * @Task(timeout=30)
+     * @param JavascriptInterface $map
+     * @param JavascriptInterface $reduce
+     * @param                     $out
+     * @param array               $options
+     * @param array               $collectionOptions
+     * @return array
+     * @throws MongoDBException
+     */
+    public function mapReduce(JavascriptInterface $map, JavascriptInterface $reduce, $out, array $options = [], array $collectionOptions = [])
+    {
+        try {
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            $data = $collection->mapReduce($this->collectionName, $map, $reduce, $out, $options, $collectionOptions);
+            return Arr::toArray($data);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * Replaces at most one document matching the filter.
+     *
+     * @Task(timeout=30)
+     * @param        $filter
+     * @param        $replacement
+     * @param array  $options
+     * @param array  $collectionOptions
+     * @return int|null
+     * @throws MongoDBException
+     */
+    public function replaceOne($filter, $replacement, array $options = [], array $collectionOptions = [])
+    {
+        try {
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            return $collection->replaceOne($this->collectionName, $filter, $replacement, $options, $collectionOptions);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * Explains explainable commands
+     *
+     * @Task(timeout=30)
+     * @param Explainable $explainable Command on which to run explain
+     * @param array       $options
+     * @param array       $collectionOptions
+     * @return mixed
+     * @throws MongoDBException
+     */
+    public function explain(Explainable $explainable, array $options = [], array $collectionOptions = [])
+    {
+        try {
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            return current($collection->explain($this->collectionName, $explainable, $options, $collectionOptions));
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * 创建集合
+     *
+     * @Task(timeout=30)
+     * @param string $collectionName
+     * @param array  $options
+     * @param array  $databaseOptions
+     * @return array|object
+     * @throws MongoDBException
+     */
+    public function createCollection(string $collectionName, array $options = [], array $databaseOptions = [])
+    {
+        try {
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            return $collection->createCollection($collectionName, $options, $databaseOptions);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * 移除集合
+     *
+     * @Task(timeout=30)
+     * @param string $collectionName
+     * @param array  $options
+     * @param array  $databaseOptions
+     * @return array|object
+     * @throws MongoDBException
+     */
+    public function dropCollection(string $collectionName, array $options = [], array $databaseOptions = [])
+    {
+        try {
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            return $collection->dropCollection($collectionName, $options, $databaseOptions);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * 修改集合
+     *
+     * @Task(timeout=30)
+     * @param string $collectionName
+     * @param array  $collectionOptions
+     * @param array  $options
+     * @param array  $databaseOptions
+     * @return array|object
+     * @throws MongoDBException
+     */
+    public function modifyCollection(string $collectionName, array $collectionOptions = [], array $options = [], array $databaseOptions = [])
+    {
+        try {
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            return $collection->modifyCollection($collectionName, $collectionOptions, $options, $databaseOptions);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * 显示所有的集合 TODO
+     *
+     * @Task(timeout=30)
+     * @param array $options
+     * @param array $databaseOptions
+     * @return array|\MongoDB\Model\CollectionInfoIterator
+     * @throws MongoDBException
+     */
+    public function listCollections(array $options = [], array $databaseOptions = [])
+    {
+        try {
+            /**
+             * @var $collection MongoDBConnection
+             */
+            $collection = $this->getConnection();
+            return $collection->listCollections($options, $databaseOptions);
         } catch (\Exception $e) {
             throw new MongoDBException($this->handleErrorMsg($e));
         }
@@ -315,8 +832,9 @@ class MongoDb
     /**
      * 聚合查询
      *
+     * @Task(timeout=30)
      * @param array $command
-     * @return array|\MongoDB\Driver\Cursor
+     * @return array
      * @throws MongoDBException
      * @throws \MongoDB\Driver\Exception\Exception
      */
@@ -334,15 +852,8 @@ class MongoDb
     }
 
     /**
-     * 使用其它方法时调用这个方法会默认投递到task进程去处理，目前swoole不支持协程，会阻塞协程调度
-     * @Task(timeout=30)
-     * @return $this
+     * @return mixed|null
      */
-    public function mongoTask()
-    {
-        return $this;
-    }
-
     private function getConnection()
     {
         $connection = null;
@@ -372,5 +883,11 @@ class MongoDb
     private function handleErrorMsg($e)
     {
         return $e->getFile() . $e->getLine() . $e->getMessage();
+    }
+
+    public function __set($name, $value)
+    {
+        $this->$name = $value;
+        return $this;
     }
 }

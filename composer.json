@@ -1,5 +1,5 @@
 {
-  "name": "phper666/mongodb",
+  "name": "phper666/mongo-db",
   "authors": [
     {
       "name": "liyuzhao",
@@ -20,14 +20,14 @@
   },
   "autoload": {
     "psr-4": {
-      "Phper666\\Mongodb\\": "src/"
+      "Phper666\\MongoDb\\": "src/"
     },
     "files": [
     ]
   },
   "extra": {
     "hyperf": {
-      "config": "Phper666\\Mongodb\\ConfigProvider"
+      "config": "Phper666\\MongoDb\\ConfigProvider"
     }
   }
 }

@@ -1,0 +1,22 @@
+<?php
+declare(strict_types=1);
+use Phper666\MongoDb\MongoDbMigration;
+
+class DummyClass extends MongoDbMigration
+{
+    /**
+     * @throws \Phper666\MongoDb\Exception\MongoDBException
+     */
+    public function up(): void
+    {
+        //
+    }
+
+    /**
+     * @throws \Phper666\MongoDb\Exception\MongoDBException
+     */
+    public function down(): void
+    {
+        //
+    }
+}
