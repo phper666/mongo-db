@@ -60,6 +60,7 @@ class MigrationCreator
         }
 
         $name = 'Mongodb' . $this->getDatePrefix() . ucfirst($name);
+        $name = $this->getClassName($name);
         $this->files->put(
             $path = $this->getPath($name, $path),
             $this->populateStub($name, $stub, $table)
