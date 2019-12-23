@@ -244,6 +244,26 @@ class MongoDbMigration
     }
 
     /**
+     * 判断是否已经存在索引
+     *
+     * @param string $collectionName
+     * @param        $key
+     * @return bool
+     */
+    public function isExistIndex(string $collectionName, $key)
+    {
+        $indexKeys = [];
+        foreach ($this->listIndexes($collectionName) as $index) {
+            $indexKeys[] = array_key_first($index->getKey());
+        }
+        if (array_keys($indexKeys, $key)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * 创建索引
      *
      * @param string $collectionName
@@ -387,6 +407,25 @@ class MongoDbMigration
         } catch (\Exception $e) {
             return $this->handleErrorMsg($e);
         }
+    }
+
+    /**
+     * 判断是否已经存在表
+     *
+     * @param string $collectionName
+     * @return bool
+     */
+    public function isExistCollection(string $collectionName)
+    {
+        $collections = [];
+        foreach ($this->listCollections() as $collectionInfo) {
+            $collections[] = $collectionInfo->getName();
+        }
+        if (array_keys($collections, $collectionName)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

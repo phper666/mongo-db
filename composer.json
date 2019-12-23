@@ -17,6 +17,7 @@
     "hyperf/config": "~1.1.0",
     "hyperf/contract": "~1.1.0",
     "hyperf/di": "~1.1.0",
+    "hyperf/task": "~1.1.0",
     "mongodb/mongodb": "^1.5"
   },
   "require-dev": {
