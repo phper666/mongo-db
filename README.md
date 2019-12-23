@@ -1,21 +1,21 @@
-###默认使用mongodb提供的库来封装,官方git地址：https://github.com/mongodb/mongo-php-library
-####1、支持类似mysql orm的一些操作
-####2、支持迁移文件(TODO)
-####3、只支持hyperf框架，由于swoole协程不支持mongodb，所以所有的方法都采用task进程来实现，该包已经封装好所有的方法都会投递到task进程进行操作，task进程建议开启多一点
-####4、该包默认使用了连接池
+### 默认使用mongodb提供的库来封装,官方git地址：https://github.com/mongodb/mongo-php-library
+#### 1、支持类似mysql orm的一些操作
+#### 2、支持迁移文件(TODO)
+#### 3、只支持hyperf框架，由于swoole协程不支持mongodb，所以所有的方法都采用task进程来实现，该包已经封装好所有的方法都会投递到task进程进行操作，task进程建议开启多一点
+#### 4、该包默认使用了连接池
 
-###注意：由于我这边开发时间比较紧急，有很多东西尚未完善，后期会迭代
+### 注意：由于我这边开发时间比较紧急，有很多东西尚未完善，后期会迭代
 
-###使用
-####1、拉取包
+### 使用
+#### 1、拉取包
 ```
 composer require phper666/mongo-db
 ```
-####2、发布配置
+#### 2、发布配置
 ```
 php bin/hyperf.php mongodb:publish --config
 ```
-####3、配置介绍
+#### 3、配置介绍
 ```
 <?php
 declare(strict_types=1);
@@ -44,12 +44,12 @@ return [
     ],
 ];
 ```
-####4、生成迁移文件
+#### 4、生成迁移文件
 ```
 php bin/hyperf.php mongodb:migrate Test
 ```
 上面的命令会自动生成一个迁移文件，会生成一个文件到配置文件制定的迁移目录中
-####5、迁移文件例子
+#### 5、迁移文件例子
 ```
 <?php
 declare(strict_types=1);
@@ -86,12 +86,12 @@ class CreateTestCollection extends MongoDbMigration
     }
 }
 ```
-####6、迁移命令
+#### 6、迁移命令
 ```
 php bin/hyperf.php mongodb:migration 
 ```
 上面这个命令会迁移你所有生成的文件，迁移文件路径在配置文件里面配置
-####7、开发使用
+#### 7、开发使用
 1、上面能像orm一样能进行迁移了，解决了升级的问题，下面我们来说一下开发时候怎么使用   
 2、在你的项目里面新建一个目录，该目录叫mongo(自行命名，类型orm的model)  
 3、比如我现在项目里面有一个库，叫test，test里面有两个collection，名字为co1,co2(你把它当成mysql的表一样)   
@@ -149,7 +149,7 @@ class TestController
 调用test方法时，就能查出co1表中的一条数据了，是不是很简单！
 ```
 6、支持有多种方法，详细你可以到Phper666\MongoDb\MongoDb查看，获取你可以去看官方的php-mongodb文档，https://docs.mongodb.com/php-library/v1.5/reference/method/MongoDBCollection-createIndexes/
-####8、结束
+#### 8、结束
 如果你有使用的问题或者建议，欢迎你提一个isset，由于太匆忙，等我开发完现在的项目，我会重新优化和迭代这个包，如果开发中有遇到问题或者有更好的写法，我会迭代到这个包这里。
-####9、注意
+#### 9、注意
 mongodb如果你使用的是默认生成_id,更新和删除我默认已经帮你使用MongoDB\BSON\ObjectId进行了转换，所以你无需再转换。获取数据时，我也默认帮你把_id转成了字符串
