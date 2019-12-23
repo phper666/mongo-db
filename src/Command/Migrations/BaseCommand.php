@@ -66,10 +66,10 @@ abstract class BaseCommand extends Command
             $migration = new $class();
             try {
                 $data = $migration->up();
-                $this->output->write(json_encode($data) . PHP_EOL);
+                $this->output->write($class . ':' . json_encode($data) . PHP_EOL);
             }catch (\Exception $exception) {
                 $data = $migration->down();
-                $this->output->write(json_encode($data) . PHP_EOL);
+                $this->output->write($class . ':' . json_encode($data) . PHP_EOL);
             }
         }
 
