@@ -48,7 +48,7 @@ return [
 ```
 php bin/hyperf.php mongodb:migrate Test
 ```
-上面的命令会自动生成一个迁移文件，会生成一个文件到配置文件制定的迁移目录中
+上面的命令会自动生成一个迁移文件，会生成一个文件到配置文件指定的迁移目录中
 #### 5、迁移文件例子
 ```
 <?php
@@ -93,7 +93,7 @@ php bin/hyperf.php mongodb:migration
 上面这个命令会迁移你所有生成的文件，迁移文件路径在配置文件里面配置
 #### 7、开发使用
 1、上面能像orm一样能进行迁移了，解决了升级的问题，下面我们来说一下开发时候怎么使用   
-2、在你的项目里面新建一个目录，该目录叫mongo(自行命名，类型orm的model)  
+2、在你的项目里面新建一个目录，该目录叫mongo(自行命名，类似orm的model)  
 3、比如我现在项目里面有一个库，叫test，test里面有两个collection，名字为co1,co2(你把它当成mysql的表一样)   
 4、我在mongo目录新建两个文件，叫Co1Mongo和Co2Mongo，都继承\Phper666\MongoDb\MongoDb   
 ```
