@@ -290,12 +290,15 @@ class MongoDbMigration
      */
     public function isExistIndex(string $collectionName, $key)
     {
-        $indexKeys = [];
         foreach ($this->listIndexes($collectionName) as $index) {
-            $indexKeys[] = array_key_first($index->getKey());
-        }
-        if (array_keys($indexKeys, $key)) {
-            return true;
+            $keys = array_keys($index->getKey());
+            if (is_array($key) && empty(array_diff($keys, $key))) {
+                return true;
+            }
+
+            if (is_string($key) && in_array($key, $keys)) {
+                return true;
+            }
         }
 
         return false;
