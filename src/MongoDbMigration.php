@@ -81,6 +81,44 @@ class MongoDbMigration
     }
 
     /**
+     * 返回满足条件的第一个数据
+     *
+     * @param string $collectionName
+     * @param array  $filter
+     * @param array  $options
+     * @param array  $collectionOptions
+     * @return array
+     * @throws MongoDBException
+     */
+    public function findOne(string $collectionName, $filter = [], array $options = [], array $collectionOptions = []): array
+    {
+        try {
+            return $this->collection($collectionName, $collectionOptions)->findOne($filter, $options);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
+     * 返回满足filer的全部数据
+     *
+     * @param string $collectionName
+     * @param array  $filter
+     * @param array  $options
+     * @param array  $collectionOptions
+     * @return \MongoDB\Driver\Cursor
+     * @throws MongoDBException
+     */
+    public function findAll(string $collectionName, array $filter = [], array $options = [], array $collectionOptions = [])
+    {
+        try {
+            return $this->collection($collectionName, $collectionOptions)->find($filter, $options);
+        } catch (\Exception $e) {
+            throw new MongoDBException($this->handleErrorMsg($e));
+        }
+    }
+
+    /**
      * 插入多个数据
      *
      * @param string $collectionName
