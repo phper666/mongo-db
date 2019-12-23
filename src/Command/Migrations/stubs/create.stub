@@ -7,7 +7,7 @@ class DummyClass extends MongoDbMigration
     /**
      * @throws \Phper666\MongoDb\Exception\MongoDBException
      */
-    public function up(): void
+    public function up()
     {
         //
     }
@@ -15,7 +15,7 @@ class DummyClass extends MongoDbMigration
     /**
      * @throws \Phper666\MongoDb\Exception\MongoDBException
      */
-    public function down(): void
+    public function down()
     {
         //
     }
