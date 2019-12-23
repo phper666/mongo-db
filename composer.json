@@ -10,9 +10,13 @@
   "require": {
     "php": ">=7.2",
     "psr/container": "^1.0",
-    "hyperf/pool": "^1.1",
-    "hyperf/contract": "~1.1.0",
+    "hyperf/pool": "^1.1.0",
     "hyperf/utils": "~1.1.0",
+    "hyperf/cache": "~1.1.0",
+    "hyperf/command": "~1.1.0",
+    "hyperf/config": "~1.1.0",
+    "hyperf/contract": "~1.1.0",
+    "hyperf/di": "~1.1.0",
     "mongodb/mongodb": "^1.5"
   },
   "require-dev": {
