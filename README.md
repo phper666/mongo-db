@@ -1,6 +1,6 @@
 ### 默认使用mongodb提供的库来封装,官方git地址：https://github.com/mongodb/mongo-php-library
 #### 1、支持类似mysql orm的一些操作
-#### 2、支持迁移文件(TODO)
+#### 2、支持迁移文件
 #### 3、只支持hyperf框架，由于swoole协程不支持mongodb，所以所有的方法都采用task进程来实现，该包已经封装好所有的方法都会投递到task进程进行操作，task进程建议开启多一点
 #### 4、该包默认使用了连接池
 
