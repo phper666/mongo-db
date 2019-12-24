@@ -93,7 +93,16 @@ class MongoDbMigration
     public function findOne(string $collectionName, $filter = [], array $options = [], array $collectionOptions = []): array
     {
         try {
-            return $this->collection($collectionName, $collectionOptions)->findOne($filter, $options);
+            $this->handleFilter($filter);
+            $options = ['limit' => 1] + $options;
+            $cursor = $this->collection($collectionName, $collectionOptions)->find($filter, $options);
+            $result = [];
+            foreach ($cursor as $document) {
+                $document = (array)$document;
+                $document['_id'] = (string)$document['_id'];
+                $result[] = $document;
+            }
+            return $result;
         } catch (\Exception $e) {
             throw new MongoDBException($this->handleErrorMsg($e));
         }
@@ -106,13 +115,21 @@ class MongoDbMigration
      * @param array  $filter
      * @param array  $options
      * @param array  $collectionOptions
-     * @return \MongoDB\Driver\Cursor
+     * @return array
      * @throws MongoDBException
      */
     public function findAll(string $collectionName, array $filter = [], array $options = [], array $collectionOptions = [])
     {
         try {
-            return $this->collection($collectionName, $collectionOptions)->find($filter, $options);
+            $this->handleFilter($filter);
+            $result = [];
+            $cursor = $this->collection($collectionName, $collectionOptions)->find($filter, $options);
+            foreach ($cursor as $document) {
+                $document = (array)$document;
+                $document['_id'] = (string)$document['_id'];
+                $result[] = $document;
+            }
+            return $result;
         } catch (\Exception $e) {
             throw new MongoDBException($this->handleErrorMsg($e));
         }
