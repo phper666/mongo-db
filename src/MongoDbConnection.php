@@ -352,7 +352,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
      * @param array  $documents
      * @param array  $options
      * @param array  $collectionOptions
-     * @return array|mixed[]
+     * @return bool|mixed[]
      * @throws MongoDBException
      */
     public function insertMany(string $namespace, array $documents = [], array $options = [], array $collectionOptions = [])
@@ -360,7 +360,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
         try {
             $result = $this->collection($namespace, $collectionOptions)->insertMany($documents, $options)->getInsertedIds();
         } catch (\Exception $e) {
-            $result = [];
+            $result = false;
             throw new MongoDBException($this->handleErrorMsg($e));
         } finally {
             $this->pool->release($this);
@@ -375,7 +375,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
      * @param array  $documents
      * @param array  $options
      * @param array  $collectionOptions
-     * @return mixed|string
+     * @return mixed|bool
      * @throws MongoDBException
      */
     public function insertOne(string $namespace, $document = [], array $options = [], array $collectionOptions = [])
@@ -383,7 +383,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
         try {
             $result = $this->collection($namespace, $collectionOptions)->insertOne($document, $options)->getInsertedId();
         } catch (\Exception $e) {
-            $result = '';
+            $result = false;
             throw new MongoDBException($this->handleErrorMsg($e));
         } finally {
             $this->pool->release($this);
