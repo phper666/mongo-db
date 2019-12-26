@@ -359,6 +359,9 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     {
         try {
             $result = $this->collection($namespace, $collectionOptions)->insertMany($documents, $options)->getInsertedIds();
+            foreach ($result as $k => $v) {
+                $result[$k] = (string)$v;
+            }
         } catch (\Exception $e) {
             $result = false;
             throw new MongoDBException($this->handleErrorMsg($e));
@@ -381,7 +384,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function insertOne(string $namespace, $document = [], array $options = [], array $collectionOptions = [])
     {
         try {
-            $result = $this->collection($namespace, $collectionOptions)->insertOne($document, $options)->getInsertedId();
+            $result = (string)$this->collection($namespace, $collectionOptions)->insertOne($document, $options)->getInsertedId();
         } catch (\Exception $e) {
             $result = false;
             throw new MongoDBException($this->handleErrorMsg($e));
