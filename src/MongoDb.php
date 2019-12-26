@@ -249,7 +249,7 @@ class MongoDb
         try {
             if ($this->timestamps) {
                 $time = time();
-                foreach ($documents as $k => &$document) {
+                foreach ($documents as &$document) {
                     $document[self::CREATED_AT] = $time;
                     $document[self::UPDATED_AT] = $time;
                 }
@@ -268,25 +268,25 @@ class MongoDb
      * 插入一个数据
      *
      * @Task(timeout=30)
-     * @param array $documents
+     * @param array $document
      * @param array $options
      * @param array $collectionOptions
      * @return bool|mixed|string
      * @throws MongoDBException
      */
-    public function insertOne($documents = [], array $options = [], array $collectionOptions = [])
+    public function insertOne($document = [], array $options = [], array $collectionOptions = [])
     {
         try {
             if ($this->timestamps) {
                 $time = time();
-                $data[self::CREATED_AT] = $time;
-                $data[self::UPDATED_AT] = $time;
+                $document[self::CREATED_AT] = $time;
+                $document[self::UPDATED_AT] = $time;
             }
             /**
              * @var $collection MongoDBConnection
              */
             $collection = $this->getConnection();
-            return $collection->insertOne($this->collectionName, $documents, $options, $collectionOptions);
+            return $collection->insertOne($this->collectionName, $document, $options, $collectionOptions);
         } catch (\Exception $e) {
             throw new MongoDBException($this->handleErrorMsg($e));
         }
@@ -356,11 +356,11 @@ class MongoDb
      * @return bool|null
      * @throws MongoDBException
      */
-    public function updateRow(array $filter = [], array $update = [], array $options = ['multi' => false, 'upsert' => false]): ?bool
+    public function updateRow(array $filter = [], array $update = [], array $options = ['multi' => false, 'upsert' => false])
     {
         try {
             if ($this->timestamps) {
-                $data[self::UPDATED_AT] = time();
+                $update[self::UPDATED_AT] = time();
             }
             /**
              * @var $collection MongoDBConnection
