@@ -95,6 +95,9 @@ class MongoDbMigration
         try {
             $this->handleFilter($filter);
             $options = ['limit' => 1] + $options;
+            if (empty($options['typeMap'])) {
+                $options['typeMap'] = ['root' => 'array', 'document' => 'array', 'array' => 'array'];
+            }
             $cursor = $this->collection($collectionName, $collectionOptions)->find($filter, $options);
             $result = [];
             foreach ($cursor as $document) {
@@ -123,6 +126,9 @@ class MongoDbMigration
         try {
             $this->handleFilter($filter);
             $result = [];
+            if (empty($options['typeMap'])) {
+                $options['typeMap'] = ['root' => 'array', 'document' => 'array', 'array' => 'array'];
+            }
             $cursor = $this->collection($collectionName, $collectionOptions)->find($filter, $options);
             foreach ($cursor as $document) {
                 $document = (array)$document;

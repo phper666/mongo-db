@@ -184,6 +184,9 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $options = ['limit' => 1] + $options;
             $cursor = $this->collection($namespace, $collectionOptions)->find($filter, $options);
             $result = [];
+            if (empty($options['typeMap'])) {
+                $options['typeMap'] = ['root' => 'array', 'document' => 'array', 'array' => 'array'];
+            }
             foreach ($cursor as $document) {
                 if (!empty($document['_id'])) {
                     $document['_id'] = (string)$document['_id'];
@@ -216,6 +219,9 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = false;
             $this->handleFilter($filter);
             $result = [];
+            if (empty($options['typeMap'])) {
+                $options['typeMap'] = ['root' => 'array', 'document' => 'array', 'array' => 'array'];
+            }
             $cursor = $this->collection($namespace, $collectionOptions)->find($filter, $options);
             foreach ($cursor as $document) {
                 if (!empty($document['_id'])) {
@@ -264,6 +270,9 @@ class MongoDbConnection extends Connection implements ConnectionInterface
                 } else {
                     $options['skip'] = ($currentPage - 1) * $limit;
                 }
+            }
+            if (empty($options['typeMap'])) {
+                $options['typeMap'] = ['root' => 'array', 'document' => 'array', 'array' => 'array'];
             }
             $cursor = $this->collection($namespace, $collectionOptions)->find($filter, $options);
             foreach ($cursor as $document) {
