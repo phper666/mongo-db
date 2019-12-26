@@ -2,14 +2,12 @@
 declare(strict_types=1);
 namespace Phper666\MongoDb\Exception;
 
+use Throwable;
+
 class MongoDBException extends \Exception
 {
-    /**
-     * @param string $msg
-     * @throws MongoDBException
-     */
-    public static function managerError(string $msg)
+    public function __construct(string $message = "", int $code = 0, Throwable $previous = null)
     {
-        throw new self($msg);
+        parent::__construct($message, $code, $previous);
     }
 }

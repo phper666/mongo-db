@@ -73,6 +73,16 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     }
 
     /**
+     * @param array $options
+     * @return Database
+     */
+    protected function database(array $options = [])
+    {
+        $database = make(Database::class, [$this->mongoClient->getManager(), $this->config['db'], $options]);
+        return $database;
+    }
+
+    /**
      * @return $this
      * @throws ConnectionException
      * @throws Exception
@@ -169,6 +179,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function findOne(string $namespace, $filter = [], array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $this->handleFilter($filter);
             $options = ['limit' => 1] + $options;
             $cursor = $this->collection($namespace, $collectionOptions)->find($filter, $options);
@@ -179,10 +190,10 @@ class MongoDbConnection extends Connection implements ConnectionInterface
                 $result = $document;
             }
         } catch (\Exception $e) {
-            $result = [];
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -200,6 +211,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function findAll(string $namespace, array $filter = [], array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $this->handleFilter($filter);
             $result = [];
             $cursor = $this->collection($namespace, $collectionOptions)->find($filter, $options);
@@ -209,10 +221,10 @@ class MongoDbConnection extends Connection implements ConnectionInterface
                 $result[] = $document;
             }
         } catch (\Exception $e) {
-            $result = [];
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -230,25 +242,25 @@ class MongoDbConnection extends Connection implements ConnectionInterface
      */
     public function findPagination(string $namespace, int $currentPage = 0, int $limit = 10, array $filter = [], array $options = [], array $collectionOptions = [])
     {
-        $this->handleFilter($filter);
-        // 查询数据
-        $data = [];
-        $result = [];
-
-        //每次最多返回10条记录
-        if (!isset($options['limit']) || (int)$options['limit'] <= 0) {
-            $options['limit'] = $limit;
-        }
-
-        if (!isset($options['skip']) || (int)$options['skip'] <= 0) {
-            if ($currentPage <= 1) {
-                $options['skip'] = 0;
-            } else {
-                $options['skip'] = ($currentPage - 1) * $limit;
-            }
-        }
-
         try {
+            $isException = false;
+            $this->handleFilter($filter);
+            // 查询数据
+            $data = [];
+            $result = [];
+
+            //每次最多返回10条记录
+            if (!isset($options['limit']) || (int)$options['limit'] <= 0) {
+                $options['limit'] = $limit;
+            }
+
+            if (!isset($options['skip']) || (int)$options['skip'] <= 0) {
+                if ($currentPage <= 1) {
+                    $options['skip'] = 0;
+                } else {
+                    $options['skip'] = ($currentPage - 1) * $limit;
+                }
+            }
             $cursor = $this->collection($namespace, $collectionOptions)->find($filter, $options);
             foreach ($cursor as $document) {
                 $document = (array)$document;
@@ -262,10 +274,10 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $result['rows'] = $data;
 
         } catch (\Exception $e) {
-            $result = [];
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -284,13 +296,14 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function findOneAndDelete(string $namespace, $filter, array $options = [], array $collectionOptions = []): array
     {
         try {
+            $isException = false;
             $this->handleFilter($filter);
             $result = $this->collection($namespace, $collectionOptions)->findOneAndDelete($filter, $options);
         } catch (\Exception $e) {
-            $result = false;
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -309,13 +322,14 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function findOneAndReplace(string $namespace, $filter, $replacement, array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $this->handleFilter($filter);
             $result = $this->collection($namespace, $collectionOptions)->findOneAndReplace($filter, $replacement, $options);
         } catch (\Exception $e) {
-            $result = false;
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -334,13 +348,14 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function findOneAndUpdate(string $namespace, $filter, $update, array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $this->handleFilter($filter);
             $result = $this->collection($namespace, $collectionOptions)->findOneAndUpdate($filter, $update, $options);
         } catch (\Exception $e) {
-            $result = false;
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -352,21 +367,22 @@ class MongoDbConnection extends Connection implements ConnectionInterface
      * @param array  $documents
      * @param array  $options
      * @param array  $collectionOptions
-     * @return bool|mixed[]
+     * @return mixed[]
      * @throws MongoDBException
      */
     public function insertMany(string $namespace, array $documents = [], array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $result = $this->collection($namespace, $collectionOptions)->insertMany($documents, $options)->getInsertedIds();
             foreach ($result as $k => $v) {
                 $result[$k] = (string)$v;
             }
         } catch (\Exception $e) {
-            $result = false;
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -378,18 +394,19 @@ class MongoDbConnection extends Connection implements ConnectionInterface
      * @param array  $documents
      * @param array  $options
      * @param array  $collectionOptions
-     * @return mixed|bool
+     * @return mixed
      * @throws MongoDBException
      */
     public function insertOne(string $namespace, $document = [], array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $result = (string)$this->collection($namespace, $collectionOptions)->insertOne($document, $options)->getInsertedId();
         } catch (\Exception $e) {
-            $result = false;
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -402,19 +419,20 @@ class MongoDbConnection extends Connection implements ConnectionInterface
      * @param        $update
      * @param array  $options
      * @param array  $collectionOptions
-     * @return int|null|bool
+     * @return int|null
      * @throws MongoDBException
      */
     public function updateMany(string $namespace, $filter, $update, array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $this->handleFilter($filter);
             $result = $this->collection($namespace, $collectionOptions)->updateMany($filter, $update, $options)->getModifiedCount();
         } catch (\Exception $e) {
-            $result = false;
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -427,19 +445,20 @@ class MongoDbConnection extends Connection implements ConnectionInterface
      * @param        $update
      * @param array  $options
      * @param array  $collectionOptions
-     * @return int|null|bool
+     * @return int|null
      * @throws MongoDBException
      */
     public function updateOne(string $namespace, $filter, $update, array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $this->handleFilter($filter);
             $result = $this->collection($namespace, $collectionOptions)->updateOne($filter, $update, $options)->getModifiedCount();
         } catch (\Exception $e) {
-            $result = false;
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -458,19 +477,20 @@ class MongoDbConnection extends Connection implements ConnectionInterface
      * @param array  $update
      * @param array  $options
      *                ---multi 是否开启批量更新，upsert 不存在是否插入
-     * @return bool|int|null
+     * @return int|null
      * @throws MongoDBException
      */
-    public function updateRow(string $namespace, array $filter = [], array $update = [], array $options = [], array $collectionOptions = []): ?bool
+    public function updateRow(string $namespace, array $filter = [], array $update = [], array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $this->handleFilter($filter);
             $result = $this->collection($namespace, $collectionOptions)->updateMany($filter, $update, $options)->getModifiedCount();
         } catch (\Exception $e) {
-            $result = false;
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -482,19 +502,20 @@ class MongoDbConnection extends Connection implements ConnectionInterface
      * @param        $filter
      * @param array  $options
      * @param array  $collectionOptions
-     * @return int|bool
+     * @return int
      * @throws MongoDBException
      */
     public function deleteMany(string $namespace, $filter, array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $this->handleFilter($filter);
             $result = $this->collection($namespace, $collectionOptions)->deleteMany($filter, $options)->getDeletedCount();
         } catch (\Exception $e) {
-            $result = false;
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -506,19 +527,20 @@ class MongoDbConnection extends Connection implements ConnectionInterface
      * @param        $filter
      * @param array  $options
      * @param array  $collectionOptions
-     * @return int|bool
+     * @return int
      * @throws MongoDBException
      */
     public function deleteOne(string $namespace, $filter, array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $this->handleFilter($filter);
             $result = $this->collection($namespace, $collectionOptions)->deleteOne($filter, $options)->getDeletedCount();
         } catch (\Exception $e) {
-            $result = false;
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -529,13 +551,13 @@ class MongoDbConnection extends Connection implements ConnectionInterface
      * @param string $namespace
      * @param array  $ids
      * @param array  $options
-     * @return int|bool
+     * @return int
      * @throws MongoDBException
      */
     public function deleteByIds(string $namespace, array $ids, array $options = [], array $collectionOptions = [])
     {
         try {
-            if (empty($ids)) return false;
+            $isException = false;
             $filter = [];
             foreach ($ids as $k => $id) {
                 $ids[$k] = new ObjectId($id);
@@ -543,10 +565,10 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $filter['_id']['$in'] = $ids;
             $result = $this->collection($namespace, $collectionOptions)->deleteMany($filter, $options)->getDeletedCount();
         } catch (\Exception $e) {
-            $result = false;
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -565,12 +587,13 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function distinct(string $namespace, string $fieldName, $filter = [], array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $result = $this->collection($namespace, $collectionOptions)->distinct($fieldName, $filter, $options);
         } catch (\Exception $e) {
-            $result = [];
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -579,20 +602,22 @@ class MongoDbConnection extends Connection implements ConnectionInterface
      * 聚合查询
      *
      * @param string $namespace
-     * @param array  $filter
+     * @param array  $pipeline
      * @param array  $options
-     * @return array
+     * @param array  $collectionOptions
+     * @return \Traversable
      * @throws MongoDBException
      */
     public function aggregate(string $namespace, array $pipeline = [], array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $result = $this->collection($namespace, $collectionOptions)->aggregate($pipeline, $options);
         } catch (\Exception $e) {
-            $result = [];
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -610,12 +635,13 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function countDocuments(string $namespace, $filter = [], array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $result = $this->collection($namespace, $collectionOptions)->countDocuments($filter, $options);
         } catch (\Exception $e) {
-            $result = 0;
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -632,12 +658,13 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function estimatedDocumentCount(string $namespace, array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $result = $this->collection($namespace, $collectionOptions)->estimatedDocumentCount($options);
         } catch (\Exception $e) {
-            $result = 0;
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -655,12 +682,13 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function createIndex(string $namespace, $key, array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $result = $this->collection($namespace, $collectionOptions)->createIndex($key, $options);
         } catch (\Exception $e) {
-            $result = [];
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -678,34 +706,36 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function createIndexes(string $namespace, array $indexes, array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $result = $this->collection($namespace, $collectionOptions)->createIndexes($indexes, $options);
         } catch (\Exception $e) {
-            $result = [];
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
 
     /**
-     * 获取所有索引信息 TODO
+     * 获取所有索引信息
      *
      * @param string $namespace
      * @param array  $options
      * @param array  $collectionOptions
-     * @return array
+     * @return \MongoDB\Model\IndexInfoIterator
      * @throws MongoDBException
      */
     public function listIndexes(string $namespace, array $options = [], array $collectionOptions = [])
     {
         try {
-            $result = $this->collection($namespace, $collectionOptions)->listIndexes($options)->current()->__debugInfo();
+            $isException = false;
+            $result = $this->collection($namespace, $collectionOptions)->listIndexes($options);
         } catch (\Exception $e) {
-            $result = [];
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -723,12 +753,13 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function dropIndex(string $namespace, $indexName, array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $result = $this->collection($namespace, $collectionOptions)->dropIndex($indexName, $options);
         } catch (\Exception $e) {
-            $result = [];
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -745,24 +776,15 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function dropIndexes(string $namespace, array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $result = $this->collection($namespace, $collectionOptions)->dropIndexes($options);
         } catch (\Exception $e) {
-            $result = [];
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
-    }
-
-    /**
-     * @param array $options
-     * @return Database
-     */
-    protected function database(array $options = [])
-    {
-        $database = make(Database::class, [$this->mongoClient->getManager(), $this->config['db'], $options]);
-        return $database;
     }
 
     /**
@@ -777,12 +799,13 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function createCollection(string $collectionName, array $options = [], array $databaseOptions = [])
     {
         try {
+            $isException = false;
             $result = $this->database($databaseOptions)->createCollection($collectionName, $options);
         } catch (\Exception $e) {
-            $result = [];
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -799,12 +822,13 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function dropCollection(string $collectionName, array $options = [], array $databaseOptions = [])
     {
         try {
+            $isException = false;
             $result = $this->database($databaseOptions)->dropCollection($collectionName, $options);
         } catch (\Exception $e) {
-            $result = [];
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -822,12 +846,13 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function modifyCollection(string $collectionName, array $collectionOptions = [], array $options = [], array $databaseOptions = [])
     {
         try {
+            $isException = false;
             $result = $this->database($databaseOptions)->modifyCollection($collectionName, $collectionOptions, $options);
         } catch (\Exception $e) {
-            $result = [];
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -843,12 +868,13 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function listCollections( array $options = [], array $databaseOptions = [])
     {
         try {
+            $isException = false;
             $result = $this->database($databaseOptions)->listCollections($options);
         } catch (\Exception $e) {
-            $result = [];
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -868,13 +894,14 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function mapReduce(string $namespace, JavascriptInterface $map, JavascriptInterface $reduce, $out, array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $data = $this->collection($namespace, $collectionOptions)->mapReduce($map, $reduce, $out, $options)->getIterator();
             $result = Arr::toArray($data);
         } catch (\Exception $e) {
-            $result = [];
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -893,12 +920,13 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function replaceOne(string $namespace, $filter, $replacement, array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $result = $this->collection($namespace, $collectionOptions)->replaceOne($filter, $replacement, $options)->getModifiedCount();
         } catch (\Exception $e) {
-            $result = 0;
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -916,12 +944,13 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function explain(string $namespace, Explainable $explainable, array $options = [], array $collectionOptions = [])
     {
         try {
+            $isException = false;
             $result = current($this->collection($namespace, $collectionOptions)->explain($explainable, $options));
         } catch (\Exception $e) {
-            $result = [];
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $result;
         }
     }
@@ -951,21 +980,20 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function count(string $namespace, array $filter = [])
     {
         try {
+            $isException = false;
             $command = new Command([
                 'count' => $namespace,
                 'query' => $filter
             ]);
             $cursor = $this->mongoClient->getManager()->executeCommand($this->config['db'], $command);
             $count = $cursor->toArray()[0]->n;
-            return $count;
         } catch (\Exception $e) {
-            $count = 0;
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } catch (Exception $e) {
-            $count = 0;
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $count;
         }
     }
@@ -993,13 +1021,14 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function command(array $command = [])
     {
         try {
+            $isException = false;
             $command = new Command($command);
             $res = $this->mongoClient->getManager()->executeCommand($this->config['db'], $command)->toArray();
         } catch (\Exception $e) {
-            $res = [];
-            throw new MongoDBException($this->handleErrorMsg($e));
+            $isException = true;
         } finally {
             $this->pool->release($this);
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
             return $res;
         }
     }
@@ -1032,11 +1061,11 @@ class MongoDbConnection extends Connection implements ConnectionInterface
         switch ($e) {
             case ($e instanceof InvalidArgumentException):
                 {
-                    throw MongoDBException::managerError('mongo argument exception: ' . $e->getMessage());
+                    throw new MongoDBException('mongo argument exception: ' . $e->getMessage(), 500, $e->getPrevious());
                 }
             case ($e instanceof AuthenticationException):
                 {
-                    throw MongoDBException::managerError('mongo数据库连接授权失败:' . $e->getMessage());
+                    throw new MongoDBException('mongo数据库连接授权失败:' . $e->getMessage(), 500, $e->getPrevious());
                 }
             case ($e instanceof ConnectionException):
                 {
@@ -1056,11 +1085,11 @@ class MongoDbConnection extends Connection implements ConnectionInterface
                 }
             case ($e instanceof RuntimeException):
                 {
-                    throw MongoDBException::managerError('mongo runtime exception: ' . $e->getMessage());
+                    throw new MongoDBException('mongo runtime exception: ' . $e->getMessage(), 500, $e->getPrevious());
                 }
             default:
                 {
-                    throw MongoDBException::managerError('mongo unexpected exception: ' . $e->getMessage());
+                    throw new MongoDBException('mongo unexpected exception: ' . $e->getMessage(), 500, $e->getPrevious());
                 }
         }
     }

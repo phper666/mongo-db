@@ -145,7 +145,7 @@ class MongoDb
      * 使用command的方式查询出数据
      *
      * @Task(timeout=30)
-     * @param array  $command
+     * @param array $command
      * @return array
      * @throws MongoDBException
      * @throws \MongoDB\Driver\Exception\Exception
@@ -167,10 +167,10 @@ class MongoDb
      * 查找单个文档并删除它，返回原始文档
      *
      * @Task(timeout=30)
-     * @param        $filter
-     * @param array  $options
-     * @param array  $collectionOptions
-     * @return array|object|null
+     * @param       $filter
+     * @param array $options
+     * @param array $collectionOptions
+     * @return array
      * @throws MongoDBException
      */
     public function findOneAndDelete($filter, array $options = [], array $collectionOptions = []): array
@@ -241,7 +241,7 @@ class MongoDb
      * @param array $documents
      * @param array $options
      * @param array $collectionOptions
-     * @return array|bool|mixed[]
+     * @return bool|mixed[]
      * @throws MongoDBException
      */
     public function insertMany(array $documents = [], array $options = [], array $collectionOptions = [])
@@ -271,7 +271,7 @@ class MongoDb
      * @param array $document
      * @param array $options
      * @param array $collectionOptions
-     * @return bool|mixed|string
+     * @return mixed
      * @throws MongoDBException
      */
     public function insertOne($document = [], array $options = [], array $collectionOptions = [])
@@ -300,7 +300,7 @@ class MongoDb
      * @param       $update
      * @param array $options
      * @param array $collectionOptions
-     * @return bool|int|null
+     * @return int|null
      * @throws MongoDBException
      */
     public function updateMany($filter, $update, array $options = [], array $collectionOptions = [])
@@ -327,7 +327,7 @@ class MongoDb
      * @param        $update
      * @param array  $options
      * @param array  $collectionOptions
-     * @return int|null|bool
+     * @return int|null
      * @throws MongoDBException
      */
     public function updateOne($filter, $update, array $options = [], array $collectionOptions = [])
@@ -353,7 +353,7 @@ class MongoDb
      * @param array $filter
      * @param array $update
      * @param array $options
-     * @return bool|null
+     * @return int|null
      * @throws MongoDBException
      */
     public function updateRow(array $filter = [], array $update = [], array $options = ['multi' => false, 'upsert' => false])
@@ -379,7 +379,7 @@ class MongoDb
      * @param        $filter
      * @param array  $options
      * @param array  $collectionOptions
-     * @return int|bool
+     * @return int
      * @throws MongoDBException
      */
     public function deleteMany($filter, array $options = [], array $collectionOptions = [])
@@ -402,7 +402,7 @@ class MongoDb
      * @param        $filter
      * @param array  $options
      * @param array  $collectionOptions
-     * @return int|bool
+     * @return int
      * @throws MongoDBException
      */
     public function deleteOne($filter, array $options = [], array $collectionOptions = [])
@@ -421,12 +421,13 @@ class MongoDb
     /**
      * 通过多个_id删除数据
      *
-     * @param array  $ids
-     * @param array  $options
-     * @return int|bool
+     * @Task(timeout=30)
+     * @param array $ids
+     * @param array $options
+     * @return int
      * @throws MongoDBException
      */
-    public function deleteByIds(array $ids = [], array $options = []): bool
+    public function deleteByIds(array $ids = [], array $options = [])
     {
         try {
             /**
@@ -467,9 +468,10 @@ class MongoDb
      * 聚合查询
      *
      * @Task(timeout=30)
-     * @param array  $filter
-     * @param array  $options
-     * @return array
+     * @param array $pipeline
+     * @param array $options
+     * @param array $collectionOptions
+     * @return \Traversable
      * @throws MongoDBException
      */
     public function aggregate(array $pipeline = [], array $options = [], array $collectionOptions = [])
@@ -577,12 +579,12 @@ class MongoDb
     }
 
     /**
-     * 获取所有索引信息 TODO
+     * 获取所有索引信息
      *
      * @Task(timeout=30)
-     * @param array  $options
-     * @param array  $collectionOptions
-     * @return array
+     * @param array $options
+     * @param array $collectionOptions
+     * @return \MongoDB\Model\IndexInfoIterator
      * @throws MongoDBException
      */
     public function listIndexes(array $options = [], array $collectionOptions = [])
