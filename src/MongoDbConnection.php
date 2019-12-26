@@ -185,8 +185,10 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $cursor = $this->collection($namespace, $collectionOptions)->find($filter, $options);
             $result = [];
             foreach ($cursor as $document) {
+                if (!empty($document['_id'])) {
+                    $document['_id'] = (string)$document['_id'];
+                }
                 $document = (array)$document;
-                $document['_id'] = (string)$document['_id'];
                 $result = $document;
             }
         } catch (\Exception $e) {
@@ -216,8 +218,10 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $result = [];
             $cursor = $this->collection($namespace, $collectionOptions)->find($filter, $options);
             foreach ($cursor as $document) {
+                if (!empty($document['_id'])) {
+                    $document['_id'] = (string)$document['_id'];
+                }
                 $document = (array)$document;
-                $document['_id'] = (string)$document['_id'];
                 $result[] = $document;
             }
         } catch (\Exception $e) {
@@ -263,8 +267,10 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             }
             $cursor = $this->collection($namespace, $collectionOptions)->find($filter, $options);
             foreach ($cursor as $document) {
+                if (!empty($document['_id'])) {
+                    $document['_id'] = (string)$document['_id'];
+                }
                 $document = (array)$document;
-                $document['_id'] = (string)$document['_id'];
                 $data[] = $document;
             }
 
