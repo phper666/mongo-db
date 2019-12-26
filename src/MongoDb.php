@@ -59,8 +59,15 @@ class MongoDb
      */
     public function __construct(PoolFactory $factory)
     {
-        if (!$this->collectionName) throw new MongoDBException('Please set the collectionName');
         $this->factory = $factory;
+    }
+
+    /**
+     * @param $collectionName
+     */
+    public function setCollectionName($collectionName)
+    {
+        $this->collectionName = $collectionName;
     }
 
     /**
