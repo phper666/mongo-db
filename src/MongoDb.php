@@ -238,10 +238,10 @@ class MongoDb
      * 插入多个数据
      *
      * @Task(timeout=30)
-     * @param array  $documents
-     * @param array  $options
-     * @param array  $collectionOptions
-     * @return array|mixed[]
+     * @param array $documents
+     * @param array $options
+     * @param array $collectionOptions
+     * @return array|bool|mixed[]
      * @throws MongoDBException
      */
     public function insertMany(array $documents = [], array $options = [], array $collectionOptions = [])
@@ -268,10 +268,10 @@ class MongoDb
      * 插入一个数据
      *
      * @Task(timeout=30)
-     * @param array  $documents
-     * @param array  $options
-     * @param array  $collectionOptions
-     * @return mixed|string
+     * @param array $documents
+     * @param array $options
+     * @param array $collectionOptions
+     * @return bool|mixed|string
      * @throws MongoDBException
      */
     public function insertOne($documents = [], array $options = [], array $collectionOptions = [])
@@ -296,11 +296,11 @@ class MongoDb
      * 更新匹配的到的所有数据
      *
      * @Task(timeout=30)
-     * @param        $filter
-     * @param        $update
-     * @param array  $options
-     * @param array  $collectionOptions
-     * @return int|null|bool
+     * @param       $filter
+     * @param       $update
+     * @param array $options
+     * @param array $collectionOptions
+     * @return bool|int|null
      * @throws MongoDBException
      */
     public function updateMany($filter, $update, array $options = [], array $collectionOptions = [])
@@ -351,9 +351,9 @@ class MongoDb
      *
      * @Task(timeout=30)
      * @param array $filter
-     * @param array $newObj
+     * @param array $update
      * @param array $options
-     * @return bool|int
+     * @return bool|null
      * @throws MongoDBException
      */
     public function updateRow(array $filter = [], array $update = [], array $options = ['multi' => false, 'upsert' => false]): ?bool

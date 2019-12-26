@@ -176,7 +176,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             foreach ($cursor as $document) {
                 $document = (array)$document;
                 $document['_id'] = (string)$document['_id'];
-                $result[] = $document;
+                $result = $document;
             }
         } catch (\Exception $e) {
             $result = [];
