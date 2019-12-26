@@ -307,7 +307,7 @@ class MongoDb
     {
         try {
             if ($this->timestamps) {
-                $update[self::UPDATED_AT] = time();
+                $update['$set'][self::UPDATED_AT] = time();
             }
             /**
              * @var $collection MongoDBConnection
@@ -334,7 +334,7 @@ class MongoDb
     {
         try {
             if ($this->timestamps) {
-                $update[self::UPDATED_AT] = time();
+                $update['$set'][self::UPDATED_AT] = time();
             }
             /**
              * @var $collection MongoDBConnection
@@ -360,7 +360,7 @@ class MongoDb
     {
         try {
             if ($this->timestamps) {
-                $update[self::UPDATED_AT] = time();
+                $update['$set'][self::UPDATED_AT] = time();
             }
             /**
              * @var $collection MongoDBConnection
