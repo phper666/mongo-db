@@ -68,6 +68,7 @@ class MongoDb
     public function setCollectionName($collectionName)
     {
         $this->collectionName = $collectionName;
+        return $this;
     }
 
     /**
@@ -76,6 +77,7 @@ class MongoDb
     public function setTimestamps(bool $bool)
     {
         $this->timestamps = $bool;
+        return $this;
     }
 
     /**
