@@ -1117,10 +1117,22 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     public function handleFilter(&$filter)
     {
         if (is_array($filter) && !empty($filter['_id']) && !($filter['_id'] instanceof ObjectId)) {
-            $filter['_id'] = new ObjectId($filter['_id']);
+            if (is_array($filter['_id'])) {
+                foreach ($filter['_id'] as $k => $_id) {
+                    $filter['_id'][$k] = new ObjectId($_id);
+                }
+            } else {
+                $filter['_id'] = new ObjectId($filter['_id']);
+            }
         }
         if (is_object($filter) && !empty($filter->_id) && !($filter->_id instanceof ObjectId)) {
-            $filter->_id = new ObjectId($filter->_id);
+            if (is_array($filter->_id)) {
+                foreach ($filter->_id as $k => $_id) {
+                    $filter->_id[$k] = new ObjectId($_id);
+                }
+            } else {
+                $filter->_id = new ObjectId($filter->_id);
+            }
         }
         return $filter;
     }
