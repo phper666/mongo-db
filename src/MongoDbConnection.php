@@ -1118,8 +1118,14 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     {
         if (is_array($filter) && !empty($filter['_id']) && !($filter['_id'] instanceof ObjectId)) {
             if (is_array($filter['_id'])) {
-                foreach ($filter['_id'] as $k => $_id) {
-                    $filter['_id'][$k] = new ObjectId($_id);
+                if (!empty($filter['_id']['$in'])) {
+                    foreach ($filter['_id']['$in'] as $k => $_id) {
+                        $filter['_id']['$in'][$k] = new ObjectId($_id);
+                    }
+                } else {
+                    foreach ($filter['_id'] as $k => $_id) {
+                        $filter['_id'][$k] = new ObjectId($_id);
+                    }
                 }
             } else {
                 $filter['_id'] = new ObjectId($filter['_id']);
@@ -1127,8 +1133,14 @@ class MongoDbConnection extends Connection implements ConnectionInterface
         }
         if (is_object($filter) && !empty($filter->_id) && !($filter->_id instanceof ObjectId)) {
             if (is_array($filter->_id)) {
-                foreach ($filter->_id as $k => $_id) {
-                    $filter->_id[$k] = new ObjectId($_id);
+                if (!empty($filter->_id['$in'])) {
+                    foreach ($filter->_id['$in'] as $k => $_id) {
+                        $filter->_id['$in'][$k] = new ObjectId($_id);
+                    }
+                } else {
+                    foreach ($filter->_id as $k => $_id) {
+                        $filter->_id[$k] = new ObjectId($_id);
+                    }
                 }
             } else {
                 $filter->_id = new ObjectId($filter->_id);
