@@ -112,34 +112,31 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             /**
              * http://php.net/manual/zh/mongodb-driver-manager.construct.php
              */
-
-            $username = $this->config['username'];
-            $password = $this->config['password'];
-            $driverOptions = $this->config['driver_options'];
-            if (!empty($username) && !empty($password)) {
-                $uri = sprintf(
-                    'mongodb://%s:%s@%s:%d/%s',
-                    $username,
-                    $password,
-                    $this->config['host'],
-                    $this->config['port'],
-                    $this->config['db']
-                );
-            } else {
-                $uri = sprintf(
-                    'mongodb://%s:%d/%s',
-                    $this->config['host'],
-                    $this->config['port'],
-                    $this->config['db']
-                );
+            $username = $this->config['username'] ?? '';
+            $password = $this->config['password'] ?? '';
+            $authMechanism = $this->config['authMechanism'] ?? '';
+            $replicaSet = $this->config['replicaSet'] ?? '';
+            $driverOptions = $this->config['driver_options'] ?? [];
+            $uriOptions = $this->config['uri_options'] ?? [];
+            if (empty($uriOptions['username'])) {
+                $uriOptions['username'] = $username;
             }
-            $urlOptions = [];
-            //数据集
-            $replica = isset($this->config['replica']) ? $this->config['replica'] : null;
-            if ($replica) {
-                $urlOptions['replicaSet'] = $replica;
+            if (empty($uriOptions['password'])) {
+                $uriOptions['password'] = $password;
             }
-            $this->mongoClient = new Client($uri, $urlOptions, $driverOptions);
+            if (empty($uriOptions['replicaSet'])) {
+                $uriOptions['replicaSet'] = $replicaSet;
+            }
+            if (empty($uriOptions['authMechanism'])) {
+                $uriOptions['authMechanism'] = $authMechanism;
+            }
+            $uri = sprintf(
+                'mongodb://%s:%d/%s',
+                $this->config['host'],
+                $this->config['port'],
+                $this->config['db']
+            );
+            $this->mongoClient = new Client($uri, $uriOptions, $driverOptions);
         } catch (InvalidArgumentException $e) {
             throw MongoDBException::managerError('mongodb 连接参数错误:' . $e->getMessage());
         } catch (RuntimeException $e) {
