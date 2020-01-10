@@ -24,7 +24,7 @@ class ConfigCommand extends HyperfCommand
         // 从 $input 获取 config 参数
         $argument = $this->input->getOption('config');
         if ($argument) {
-            $this->copySource(__DIR__ . '/../publish/mongodb.php', BASE_PATH . '/config/autoload/mongodb.php');
+            $this->copySource(__DIR__ . '/../Publish/mongodb.php', BASE_PATH . '/config/autoload/mongodb.php');
             $this->line('The mongodb configuration file has been generated', 'info');
         }
     }
