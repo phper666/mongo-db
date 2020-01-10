@@ -124,10 +124,10 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             if (empty($uriOptions['password'])) {
                 $uriOptions['password'] = $password;
             }
-            if (empty($uriOptions['replicaSet'])) {
+            if (empty($uriOptions['replicaSet']) && !empty($replicaSet)) {
                 $uriOptions['replicaSet'] = $replicaSet;
             }
-            if (empty($uriOptions['authMechanism'])) {
+            if (empty($uriOptions['authMechanism']) && !empty($authMechanism)) {
                 $uriOptions['authMechanism'] = $authMechanism;
             }
             $uri = sprintf(
@@ -136,6 +136,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
                 $this->config['port'],
                 $this->config['db']
             );
+            var_dump($uriOptions);
             $this->mongoClient = new Client($uri, $uriOptions, $driverOptions);
         } catch (InvalidArgumentException $e) {
             throw MongoDBException::managerError('mongodb 连接参数错误:' . $e->getMessage());
@@ -1073,37 +1074,37 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     {
         switch ($e) {
             case ($e instanceof InvalidArgumentException):
-                {
-                    throw new MongoDBException('mongo argument exception: ' . $e->getMessage(), 500, $e->getPrevious());
-                }
+            {
+                throw new MongoDBException('mongo argument exception: ' . $e->getMessage(), 500, $e->getPrevious());
+            }
             case ($e instanceof AuthenticationException):
-                {
-                    throw new MongoDBException('mongo数据库连接授权失败:' . $e->getMessage(), 500, $e->getPrevious());
-                }
+            {
+                throw new MongoDBException('mongo数据库连接授权失败:' . $e->getMessage(), 500, $e->getPrevious());
+            }
             case ($e instanceof ConnectionException):
-                {
-                    /**
-                     * https://cloud.tencent.com/document/product/240/4980
-                     * 存在连接失败的，那么进行重连
-                     */
-                    for ($counts = 1; $counts <= 5; $counts++) {
-                        try {
-                            $this->reconnect();
-                        } catch (\Exception $e) {
-                            continue;
-                        }
-                        break;
+            {
+                /**
+                 * https://cloud.tencent.com/document/product/240/4980
+                 * 存在连接失败的，那么进行重连
+                 */
+                for ($counts = 1; $counts <= 5; $counts++) {
+                    try {
+                        $this->reconnect();
+                    } catch (\Exception $e) {
+                        continue;
                     }
-                    return true;
+                    break;
                 }
+                return true;
+            }
             case ($e instanceof RuntimeException):
-                {
-                    throw new MongoDBException('mongo runtime exception: ' . $e->getMessage(), 500, $e->getPrevious());
-                }
+            {
+                throw new MongoDBException('mongo runtime exception: ' . $e->getMessage(), 500, $e->getPrevious());
+            }
             default:
-                {
-                    throw new MongoDBException('mongo unexpected exception: ' . $e->getMessage(), 500, $e->getPrevious());
-                }
+            {
+                throw new MongoDBException('mongo unexpected exception: ' . $e->getMessage(), 500, $e->getPrevious());
+            }
         }
     }
 
