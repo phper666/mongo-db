@@ -17,6 +17,7 @@ return [
         'migration' => [
             'path' => BASE_PATH . '/migrations/mongodb', // 迁移文件的路径
         ],
+        'dsn' => '', // 支持直接使用url的方式连接mongodb
         'pool' => [
             'min_connections' => 1,
             'max_connections' => 100,

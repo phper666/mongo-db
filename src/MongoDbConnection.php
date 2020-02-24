@@ -136,6 +136,9 @@ class MongoDbConnection extends Connection implements ConnectionInterface
                 $this->config['port'],
                 $this->config['db']
             );
+            if (!empty($this->config['dsn'])) {
+                $uri = $this->config['dsn'];
+            }
             $this->mongoClient = new Client($uri, $uriOptions, $driverOptions);
         } catch (InvalidArgumentException $e) {
             throw MongoDBException::managerError('mongodb 连接参数错误:' . $e->getMessage());
