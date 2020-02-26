@@ -199,7 +199,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -235,7 +235,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -293,7 +293,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -319,7 +319,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -345,7 +345,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -371,7 +371,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -398,7 +398,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -422,7 +422,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -448,7 +448,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -474,7 +474,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -506,7 +506,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -531,7 +531,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -556,7 +556,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -584,7 +584,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -609,7 +609,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -633,7 +633,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -657,7 +657,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -680,7 +680,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -704,7 +704,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -728,7 +728,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -751,7 +751,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -775,7 +775,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -798,7 +798,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -821,7 +821,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -844,7 +844,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -868,7 +868,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -890,7 +890,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -917,7 +917,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -942,7 +942,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -966,7 +966,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $result;
         }
     }
@@ -1009,7 +1009,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $count;
         }
     }
@@ -1044,7 +1044,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             $isException = true;
         } finally {
             $this->pool->release($this);
-            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 500, $e->getPrevious());
+            if ($isException) throw new MongoDBException($this->handleErrorMsg($e), 400, $e->getPrevious());
             return $res;
         }
     }
@@ -1077,11 +1077,11 @@ class MongoDbConnection extends Connection implements ConnectionInterface
         switch ($e) {
             case ($e instanceof InvalidArgumentException):
             {
-                throw new MongoDBException('mongo argument exception: ' . $e->getMessage(), 500, $e->getPrevious());
+                throw new MongoDBException('mongo argument exception: ' . $e->getMessage(), 400, $e->getPrevious());
             }
             case ($e instanceof AuthenticationException):
             {
-                throw new MongoDBException('mongo数据库连接授权失败:' . $e->getMessage(), 500, $e->getPrevious());
+                throw new MongoDBException('mongo数据库连接授权失败:' . $e->getMessage(), 400, $e->getPrevious());
             }
             case ($e instanceof ConnectionException):
             {
@@ -1101,11 +1101,11 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             }
             case ($e instanceof RuntimeException):
             {
-                throw new MongoDBException('mongo runtime exception: ' . $e->getMessage(), 500, $e->getPrevious());
+                throw new MongoDBException('mongo runtime exception: ' . $e->getMessage(), 400, $e->getPrevious());
             }
             default:
             {
-                throw new MongoDBException('mongo unexpected exception: ' . $e->getMessage(), 500, $e->getPrevious());
+                throw new MongoDBException('mongo unexpected exception: ' . $e->getMessage(), 400, $e->getPrevious());
             }
         }
     }
