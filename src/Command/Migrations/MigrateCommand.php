@@ -27,7 +27,7 @@ class MigrateCommand extends BaseCommand
      *
      * @var string
      */
-    protected $name = 'mongodb:migrate';
+    protected $name = 'mongodb:migration';
 
     /**
      * The console command description.
