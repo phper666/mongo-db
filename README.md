@@ -52,7 +52,7 @@ return [
 ```
 #### 4、生成迁移文件
 ```
-php bin/hyperf.php mongodb:migrate Test
+php bin/hyperf.php mongodb:migration Test
 ```
 上面的命令会自动生成一个迁移文件，会生成一个文件到配置文件指定的迁移目录中
 #### 5、迁移文件例子
@@ -94,7 +94,7 @@ class CreateTestCollection extends MongoDbMigration
 ```
 #### 6、迁移命令
 ```
-php bin/hyperf.php mongodb:migration 
+php bin/hyperf.php mongodb:migrate 
 ```
 上面这个命令会迁移你所有生成的文件，迁移文件路径在配置文件里面配置
 #### 7、开发使用
