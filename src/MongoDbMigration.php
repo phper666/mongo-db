@@ -315,7 +315,7 @@ class MongoDbMigration
     {
         foreach ($this->listIndexes($collectionName) as $index) {
             $keys = array_keys($index->getKey());
-            if (is_array($key) && empty(array_diff($keys, $key))) {
+            if (is_array($key) && ($keys === $key)) {
                 return true;
             }
 
