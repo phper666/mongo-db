@@ -13,50 +13,130 @@ declare(strict_types=1);
 namespace Phper666\MongoDb\Command\Migrations;
 
 use Hyperf\Command\Annotation\Command;
-use Hyperf\Command\ConfirmableTrait;
 use Hyperf\Di\Annotation\Inject;
-use Phper666\MongoDb\MongoDbConnection;
+use Hyperf\Utils\Str;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 /**
  * @Command()
  */
 class MigrationCommand extends BaseCommand
 {
-    use ConfirmableTrait;
-
-    protected $name = 'mongodb:migrate';
+    /**
+     * 执行的命令行
+     *
+     * @var string
+     */
+    protected $name = 'mongodb:migration';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Run the mongodb migrate';
+    protected $description = 'Generate a new migration file';
+
+    /**
+     * The migration creator instance.
+     *
+     * @Inject()
+     * @var \Phper666\MongoDb\Command\Migrations\MigrationCreator
+     */
+    protected $creator;
 
     /**
      * Execute the console command.
+     * @throws \Exception
      */
     public function handle()
     {
-        if (! $this->confirmToProceed()) {
-            return;
+        // It's possible for the developer to specify the tables to modify in this
+        // schema operation. The developer may also specify if this table needs
+        // to be freshly created so we can create the appropriate migrations.
+        $name = Str::snake(trim($this->input->getArgument('name')));
+
+        $table = $this->input->getOption('table');
+
+        $create = $this->input->getOption('create') ?: false;
+
+        // If no table was given as an option but a create option is given then we
+        // will use the "create" option as the table name. This allows the devs
+        // to pass a table name into this option as a short-cut for creating.
+        if (! $table && is_string($create)) {
+            $table = $create;
+
+            $create = true;
         }
 
-        $this->setOutput($this->output)->runMigration($this->getMigrationPaths(), []);
-
-        if ($this->input->getOption('seed') && ! $this->input->getOption('pretend')) {
-            $this->call('mongodb:seed', ['--force' => true]);
+        // Next, we will attempt to guess the table name if this the migration has
+        // "create" in the name. This will allow us to provide a convenient way
+        // of creating migrations that create new tables for the application.
+        if (! $table) {
+            [$table, $create] = TableGuesser::guess($name);
         }
+
+        // Now we are ready to write the migration out to disk. Once we've written
+        // the migration out, we will dump-autoload for the entire framework to
+        // make sure that the migrations are registered by the class loaders.
+        $this->writeMigration($name, $table, $create);
+    }
+
+    protected function getArguments(): array
+    {
+        return [
+            ['name', InputArgument::REQUIRED, 'The name of the migration'],
+        ];
     }
 
     protected function getOptions(): array
     {
         return [
-            ['force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production'],
-            ['path', null, InputOption::VALUE_OPTIONAL, 'The path to the migrations files to be executed'],
+            ['create', null, InputOption::VALUE_OPTIONAL, 'The table to be created'],
+            ['table', null, InputOption::VALUE_OPTIONAL, 'The table to migrate'],
+            ['path', null, InputOption::VALUE_OPTIONAL, 'The location where the migration file should be created'],
             ['realpath', null, InputOption::VALUE_NONE, 'Indicate any provided migration file paths are pre-resolved absolute paths'],
-            ['seed', null, InputOption::VALUE_NONE, 'Indicates if the seed task should be re-run']
         ];
     }
 
+    /**
+     * @param string      $name
+     * @param string|null $table
+     * @param bool        $create
+     * @throws \Exception
+     */
+    protected function writeMigration(string $name, ?string $table, bool $create): void
+    {
+        $file = pathinfo($this->creator->create(
+            $name,
+            $this->getMigrationPath(),
+            $table,
+            $create
+        ), PATHINFO_FILENAME);
+
+        $this->info("<info>[INFO] Created Migration:</info> {$file}");
+    }
+
+    /**
+     * Get migration path (either specified by '--path' option or default location).
+     *
+     * @return string
+     */
+    protected function getMigrationPath()
+    {
+        if (! is_null($targetPath = $this->input->getOption('path'))) {
+            return ! $this->usingRealPath()
+                            ? BASE_PATH . '/' . $targetPath
+                            : $targetPath;
+        }
+
+        return parent::getMigrationPath();
+    }
+
+    /**
+     * Determine if the given path(s) are pre-resolved "real" paths.
+     */
+    protected function usingRealPath(): bool
+    {
+        return $this->input->hasOption('realpath') && $this->input->getOption('realpath');
+    }
 }
