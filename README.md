@@ -9,9 +9,9 @@
 2、开启v2.0分支，跟1.0有很大区别，因为hyperf采用了laravel的orm，所以我会参考laravel-mongodb来封装   
 3、使用v1.0+时，如果你开一百多个task进程处理，你的宿主机内存不大时，并发请求多，导致内存没有被释放，这时候你的宿主机可能会down机，所以建议开启swoole的task配置，task_max_request=2，这个配置的意思是task进程处理两次请求后会自动kill这个task进程，重新拉起一个新的task进程，这样就不会导致你的宿主机内存过大而导致服务器down机      
 
-v1.0+有个大bug，目前无法解决，实际是目前操作mongodb都没有丢到task处理，需要hyperf2.0才能解决，具体情况这个issue[https://github.com/hyperf/hyperf/issues/1798]https://github.com/hyperf/hyperf/issues/1798    
+v1.0+有个大bug，目前无法解决，实际是目前操作mongodb都没有丢到task处理，需要hyperf2.0才能解决，具体情况这个issue[https://github.com/hyperf/hyperf/issues/1798]   
 
-这个bug目前我们在项目中如何解决，有两种方法：
+这个bug目前我们在项目中如何解决，有两种方法：  
 1、在model里面新增一个getMethod方法,这个方法申请要丢到task处理
 ```
 <?php
