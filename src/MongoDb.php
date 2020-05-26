@@ -737,14 +737,14 @@ class MongoDb
      * @return array|object
      * @throws MongoDBException
      */
-    public function createCollection(string $collectionName, array $options = [], array $databaseOptions = [])
+    public function createCollection(array $options = [], array $databaseOptions = [])
     {
         try {
             /**
              * @var $collection MongoDBConnection
              */
             $collection = $this->getConnection();
-            return $collection->createCollection($collectionName, $options, $databaseOptions);
+            return $collection->createCollection($this->collectionName, $options, $databaseOptions);
         } catch (\Exception $e) {
             throw new MongoDBException($this->handleErrorMsg($e));
         }
@@ -760,14 +760,14 @@ class MongoDb
      * @return array|object
      * @throws MongoDBException
      */
-    public function dropCollection(string $collectionName, array $options = [], array $databaseOptions = [])
+    public function dropCollection(array $options = [], array $databaseOptions = [])
     {
         try {
             /**
              * @var $collection MongoDBConnection
              */
             $collection = $this->getConnection();
-            return $collection->dropCollection($collectionName, $options, $databaseOptions);
+            return $collection->dropCollection($this->collectionName, $options, $databaseOptions);
         } catch (\Exception $e) {
             throw new MongoDBException($this->handleErrorMsg($e));
         }
@@ -784,14 +784,14 @@ class MongoDb
      * @return array|object
      * @throws MongoDBException
      */
-    public function modifyCollection(string $collectionName, array $collectionOptions = [], array $options = [], array $databaseOptions = [])
+    public function modifyCollection(array $collectionOptions = [], array $options = [], array $databaseOptions = [])
     {
         try {
             /**
              * @var $collection MongoDBConnection
              */
             $collection = $this->getConnection();
-            return $collection->modifyCollection($collectionName, $collectionOptions, $options, $databaseOptions);
+            return $collection->modifyCollection($this->collectionName, $collectionOptions, $options, $databaseOptions);
         } catch (\Exception $e) {
             throw new MongoDBException($this->handleErrorMsg($e));
         }

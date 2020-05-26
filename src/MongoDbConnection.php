@@ -1119,13 +1119,17 @@ class MongoDbConnection extends Connection implements ConnectionInterface
     {
         if (is_array($filter) && !empty($filter['_id']) && !($filter['_id'] instanceof ObjectId)) {
             if (is_array($filter['_id'])) {
-                if (!empty($filter['_id']['$in'])) {
-                    foreach ($filter['_id']['$in'] as $k => $_id) {
-                        $filter['_id']['$in'][$k] = new ObjectId($_id);
-                    }
-                } else {
-                    foreach ($filter['_id'] as $k => $_id) {
-                        $filter['_id'][$k] = new ObjectId($_id);
+                foreach ($filter['_id'] as $k => $ids) {
+                    if ($k == '$in') {
+                        foreach ($ids as $k1 => $id) {
+                            (!$id instanceof ObjectId) ? $filter['_id']['$in'][$k1] = new ObjectId($id) : '';
+                        }
+                    } elseif ($k == '$nin') {
+                        foreach ($ids as $k1 => $id) {
+                            (!$id instanceof ObjectId) ? $filter['_id']['$nin'][$k1] = new ObjectId($id) : '';
+                        }
+                    } elseif (is_numeric($k)){ // 如果是索引数字
+                        (!$ids instanceof ObjectId) ? $filter['_id'][$k] = new ObjectId($ids) : '';
                     }
                 }
             } else {
@@ -1134,13 +1138,17 @@ class MongoDbConnection extends Connection implements ConnectionInterface
         }
         if (is_object($filter) && !empty($filter->_id) && !($filter->_id instanceof ObjectId)) {
             if (is_array($filter->_id)) {
-                if (!empty($filter->_id['$in'])) {
-                    foreach ($filter->_id['$in'] as $k => $_id) {
-                        $filter->_id['$in'][$k] = new ObjectId($_id);
-                    }
-                } else {
-                    foreach ($filter->_id as $k => $_id) {
-                        $filter->_id[$k] = new ObjectId($_id);
+                foreach ($filter->_id as $k => $ids) {
+                    if ($k == '$in') {
+                        foreach ($ids as $k1 => $id) {
+                            (!$id instanceof ObjectId) ? $filter->_id['$in'][$k1] = new ObjectId($id) : '';
+                        }
+                    } elseif ($k == '$nin') {
+                        foreach ($ids as $k1 => $id) {
+                            (!$id instanceof ObjectId) ? $filter->_id['$nin'][$k1] = new ObjectId($id) : '';
+                        }
+                    } elseif (is_numeric($k)){ // 如果是索引数字
+                        (!$ids instanceof ObjectId) ? $filter->_id[$k] = new ObjectId($ids) : '';
                     }
                 }
             } else {

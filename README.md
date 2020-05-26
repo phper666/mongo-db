@@ -7,7 +7,43 @@
 ### 注意：
 1、v1.0+版本只会维护不增加功能   
 2、开启v2.0分支，跟1.0有很大区别，因为hyperf采用了laravel的orm，所以我会参考laravel-mongodb来封装   
-3、使用v1.0+时，如果你开一百多个task进程处理，你的宿主机内存不大时，并发请求多，导致内存没有被释放，这时候你的宿主机可能会down机，所以建议开启swoole的task配置，task_max_request=2，这个配置的意思是task进程处理两次请求后会自动kill这个task进程，重新拉起一个新的task进程，这样就不会导致你的宿主机内存过大而导致服务器down机   
+3、使用v1.0+时，如果你开一百多个task进程处理，你的宿主机内存不大时，并发请求多，导致内存没有被释放，这时候你的宿主机可能会down机，所以建议开启swoole的task配置，task_max_request=2，这个配置的意思是task进程处理两次请求后会自动kill这个task进程，重新拉起一个新的task进程，这样就不会导致你的宿主机内存过大而导致服务器down机      
+
+v1.0+有个大bug，目前无法解决，实际是目前操作mongodb都没有丢到task处理，需要hyperf2.0才能解决，具体情况这个issue[https://github.com/hyperf/hyperf/issues/1798]https://github.com/hyperf/hyperf/issues/1798    
+
+这个bug目前我们在项目中如何解决，有两种方法：
+1、在model里面新增一个getMethod方法,这个方法申请要丢到task处理
+```
+<?php
+declare(strict_types=1);
+namespace TmgAddon\WebQySession\Model;
+
+use Hyperf\Task\Annotation\Task;
+use Phper666\MongoDb\MongoDb;
+class Test extends MongoDb
+{
+    public $collectionName = 'test';
+
+    public static function collectionName()
+    {
+        return 'test';
+    }
+
+    /**
+     * @Task(timeout=20)
+     * @return array
+     */
+    public function getMethod($method, ...$params)
+    {
+        return $this->{$method}(...$params);
+    }
+}
+
+// 调用,实际跟原有的findOne调用的参数是一致的，只不过第一个参数时申明要调用申明方法
+$data = make(Test::class)->getMethod('findOne', ['name' => '1'], ['projection' => ['name' => 1]]);
+
+```
+2、在你使用Test这个模型的方法直接申明丢到Task处理，这个方式不是万能的，因为Task不能处理一些需要在协程下处理的东西，例如co或者协程http，所以只能是第一种和第二种方法结合使用
 
 ### 使用
 #### 1、拉取包
