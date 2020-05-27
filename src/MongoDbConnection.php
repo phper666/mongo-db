@@ -315,6 +315,9 @@ class MongoDbConnection extends Connection implements ConnectionInterface
         try {
             $isException = false;
             $this->handleFilter($filter);
+            if (empty($options['typeMap'])) {
+                $options['typeMap'] = ['root' => 'array', 'document' => 'array', 'array' => 'array'];
+            }
             $result = $this->collection($namespace, $collectionOptions)->findOneAndDelete($filter, $options);
         } catch (\Exception $e) {
             $isException = true;
@@ -341,6 +344,9 @@ class MongoDbConnection extends Connection implements ConnectionInterface
         try {
             $isException = false;
             $this->handleFilter($filter);
+            if (empty($options['typeMap'])) {
+                $options['typeMap'] = ['root' => 'array', 'document' => 'array', 'array' => 'array'];
+            }
             $result = $this->collection($namespace, $collectionOptions)->findOneAndReplace($filter, $replacement, $options);
         } catch (\Exception $e) {
             $isException = true;
@@ -367,6 +373,9 @@ class MongoDbConnection extends Connection implements ConnectionInterface
         try {
             $isException = false;
             $this->handleFilter($filter);
+            if (empty($options['typeMap'])) {
+                $options['typeMap'] = ['root' => 'array', 'document' => 'array', 'array' => 'array'];
+            }
             $result = $this->collection($namespace, $collectionOptions)->findOneAndUpdate($filter, $update, $options);
         } catch (\Exception $e) {
             $isException = true;
