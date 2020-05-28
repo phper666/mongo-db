@@ -310,7 +310,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
      * @return array|object|null|bool
      * @throws MongoDBException
      */
-    public function findOneAndDelete(string $namespace, $filter, array $options = [], array $collectionOptions = []): array
+    public function findOneAndDelete(string $namespace, $filter, array $options = [], array $collectionOptions = [])
     {
         try {
             $isException = false;

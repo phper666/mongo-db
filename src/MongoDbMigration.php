@@ -90,7 +90,7 @@ class MongoDbMigration
      * @return array
      * @throws MongoDBException
      */
-    public function findOne(string $collectionName, $filter = [], array $options = [], array $collectionOptions = []): array
+    public function findOne(string $collectionName, $filter = [], array $options = [], array $collectionOptions = [])
     {
         try {
             $this->handleFilter($filter);

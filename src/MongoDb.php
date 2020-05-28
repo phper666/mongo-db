@@ -182,7 +182,7 @@ class MongoDb
      * @return array
      * @throws MongoDBException
      */
-    public function findOneAndDelete($filter, array $options = [], array $collectionOptions = []): array
+    public function findOneAndDelete($filter, array $options = [], array $collectionOptions = [])
     {
         try {
             /**
