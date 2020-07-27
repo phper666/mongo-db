@@ -276,7 +276,8 @@ class MongoDbConnection extends Connection implements ConnectionInterface
             if (empty($options['typeMap'])) {
                 $options['typeMap'] = ['root' => 'array', 'document' => 'array', 'array' => 'array'];
             }
-            $cursor = $this->collection($namespace, $collectionOptions)->find($filter, $options);
+            $collection = $this->collection($namespace, $collectionOptions);
+            $cursor = $collection->find($filter, $options);
             foreach ($cursor as $document) {
                 if (!empty($document['_id'])) {
                     $document['_id'] = (string)$document['_id'];
@@ -284,8 +285,7 @@ class MongoDbConnection extends Connection implements ConnectionInterface
                 $document = (array)$document;
                 $data[] = $document;
             }
-
-            $result['total'] = $this->countDocuments($namespace, $filter);
+            $result['total'] = $collection->countDocuments($filter, $options);
             $result['page_no'] = $currentPage;
             $result['page_size'] = $limit;
             $result['rows'] = $data;
