@@ -10,18 +10,19 @@
   "require": {
     "php": ">=7.2",
     "psr/container": "^1.0",
-    "hyperf/pool": "^1.1.0",
-    "hyperf/utils": "~1.1.0",
-    "hyperf/cache": "~1.1.0",
-    "hyperf/command": "~1.1.0",
-    "hyperf/config": "~1.1.0",
-    "hyperf/contract": "~1.1.0",
-    "hyperf/di": "~1.1.0",
-    "hyperf/task": "~1.1.0",
     "mongodb/mongodb": "^1.5"
   },
   "require-dev": {
-    "hyperf/di": "~1.1.0"
+  },
+  "suggest": {
+    "hyperf/di": "required hyperf/di ~2.0.0 OR required hyperf/di ~1.1.0",
+    "hyperf/pool": "required hyperf/pool ~2.0.0 OR required hyperf/pool ~1.1.0",
+    "hyperf/cache": "required hyperf/cache ~2.0.0 OR required hyperf/cache ~1.1.0",
+    "hyperf/utils": "required hyperf/utils ~2.0.0 OR required hyperf/utils ~1.1.0",
+    "hyperf/contract": "required hyperf/contract ~2.0.0 OR required hyperf/contract ~1.1.0",
+    "hyperf/command": "required hyperf/command ~2.0.0 OR required hyperf/command ~1.1.0",
+    "hyperf/config": "required hyperf/config ~2.0.0 OR required hyperf/config ~1.1.0",
+    "hyperf/task": "required hyperf/config ~2.0.0 OR required hyperf/task ~1.1.0"
   },
   "autoload": {
     "psr-4": {
