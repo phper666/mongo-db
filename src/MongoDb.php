@@ -89,14 +89,15 @@ class MongoDb
      * @return array
      * @throws MongoDBException
      */
-    public function findOne($filter = [], array $options = [], array $collectionOptions = []): array
+    public function findOne($filter = [], array $options = [], array $collectionOptions = [], string $collectionName = ''): array
     {
         try {
             /**
              * @var $collection MongoDBConnection
              */
             $collection = $this->getConnection();
-            return $collection->findOne($this->collectionName, $filter, $options, $collectionOptions);
+            $collectionName = empty($this->collectionName) ? $collectionName : $this->collectionName;
+            return $collection->findOne($collectionName, $filter, $options, $collectionOptions);
         } catch (\Exception $e) {
             throw new MongoDBException($this->handleErrorMsg($e));
         }
@@ -109,17 +110,19 @@ class MongoDb
      * @param array  $filter
      * @param array  $options
      * @param array  $collectionOptions
+     * @param string $collectionName
      * @return array
      * @throws MongoDBException
      */
-    public function findAll(array $filter = [], array $options = [], array $collectionOptions = [])
+    public function findAll(array $filter = [], array $options = [], array $collectionOptions = [], string $collectionName = '')
     {
         try {
             /**
              * @var $collection MongoDBConnection
              */
             $collection = $this->getConnection();
-            return $collection->findAll($this->collectionName, $filter, $options, $collectionOptions);
+            $collectionName = empty($this->collectionName) ? $collectionName : $this->collectionName;
+            return $collection->findAll($collectionName, $filter, $options, $collectionOptions);
         } catch (\Exception $e) {
             throw new MongoDBException($this->handleErrorMsg($e));
         }
@@ -129,6 +132,7 @@ class MongoDb
      * 返回满足filer的分页数据
      *
      * @Task(timeout=30)
+     * @param string $collectionName
      * @param int    $currentPage
      * @param int    $limit
      * @param array  $filter
@@ -137,14 +141,14 @@ class MongoDb
      * @return array
      * @throws MongoDBException
      */
-    public function findPagination(int $currentPage, int $limit,  array $filter = [], array $options = [], array $collectionOptions = [])
+    public function findPagination(string $collectionName, int $currentPage, int $limit,  array $filter = [], array $options = [], array $collectionOptions = [])
     {
         try {
             /**
              * @var $collection MongoDBConnection
              */
             $collection = $this->getConnection();
-            return $collection->findPagination($this->collectionName, $currentPage, $limit,  $filter, $options, $collectionOptions);
+            return $collection->findPagination($collectionName, $currentPage, $limit,  $filter, $options, $collectionOptions);
         } catch (\Exception  $e) {
             throw new MongoDBException($this->handleErrorMsg($e));
         }
@@ -480,17 +484,19 @@ class MongoDb
      * @param array $pipeline
      * @param array $options
      * @param array $collectionOptions
+     * @param string $collectionName
      * @return \Traversable
      * @throws MongoDBException
      */
-    public function aggregate(array $pipeline = [], array $options = [], array $collectionOptions = [])
+    public function aggregate( array $pipeline = [], array $options = [], array $collectionOptions = [], string $collectionName = '')
     {
         try {
             /**
              * @var $collection MongoDBConnection
              */
             $collection = $this->getConnection();
-            return $collection->aggregate($this->collectionName, $pipeline, $options, $collectionOptions);
+            $collectionName = empty($this->collectionName) ? $collectionName : $this->collectionName;
+            return $collection->aggregate($collectionName, $pipeline, $options, $collectionOptions);
         } catch (\Exception $e) {
             throw new MongoDBException($this->handleErrorMsg($e));
         }
